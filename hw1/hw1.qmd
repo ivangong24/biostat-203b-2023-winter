@@ -1,0 +1,42 @@
+---
+title: "Biostat 203B Homework 1"
+subtitle: "`r Sys.Date()`"
+author: Yufan Gong 305301666
+format:
+  html:
+    theme: cosmo
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+knitr:
+  opts_chunk: 
+    cache: false    
+    echo: true
+    fig.align: 'center'
+    fig.width: 6
+    fig.height: 4
+    message: TRUE
+---
+
+Display machine information for reproducibility:
+```{r}
+sessionInfo()
+```
+
+## Q1. Git/GitHub
+
+Please check the github repository
+
+## Q2. Data ethics training
+
+Completion report & certificate link: 
+
+  <https://www.citiprogram.org/verify/?keaf58f19-b1d0-415e-870b-2f584a82fde3-53620134>
+
+  <https://www.citiprogram.org/verify/?w6ef6e0df-e163-4ddc-bab8-2b74ab11b219-53620134>
+
+
+## Q3. Linux Shell Commands
+
