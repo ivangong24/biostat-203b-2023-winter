@@ -40,3 +40,110 @@ Completion report & certificate link:
 
 ## Q3. Linux Shell Commands
 
+1. 
+```{bash}
+ls -l ~/mimic
+```
+
+
+2. Display the contents in the folders `core`, `hosp`, `icu`.
+```{bash}
+for i in core hosp icu
+do
+  ls ~/mimic/$i
+done
+```
+
+3.
+  
+4. What’s the output of the following bash script?
+```{bash}
+for datafile in ~/mimic/core/*.gz
+do
+  ls -l $datafile
+done
+```
+    
+Display the number of lines in each data file using a similar loop
+
+```{bash}
+for datafile in ~/mimic/core/*.gz
+do
+  zcat < $datafile | wc -l
+done
+```
+
+5. 
+a) Display the first few lines of `admissions.csv.gz`
+```{bash}
+zmore < ~/mimic/core/admissions.csv.gz | head -5
+```
+b) How many rows are in this data file?
+
+```{bash}
+zcat < ~/mimic/core/admissions.csv.gz | wc -l
+```
+
+c) How many unique patients (identified by subject_id) are in this data file?
+```{bash}
+zcat < ~/mimic/core/admissions.csv.gz |  awk -F "," '{print $1}' | sort | uniq | wc -l
+```
+
+6. 
+What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`?
+
+
+First, we need to locate the positions of these variables: 
+
+```{bash}
+zmore < ~/mimic/core/admissions.csv.gz | head -1
+```
+
+Thus, the corresponding positions for these variables are 6, 7, 9 and 12, respectively.
+
+Then, we can select the columns accordingly and print the unique values for each of them.
+```{bash}
+for i in 6 7 9 12
+do
+ zcat < ~/mimic/core/admissions.csv.gz |  awk -F ","  -v i="$i" '{print $i}' | sort | uniq -c
+done
+```
+
+b) report the count for each unique value of these variables
+```{bash}
+for i in 6 7 9 12
+do
+ zcat < ~/mimic/core/admissions.csv.gz |  awk -F ","  -v i="$i" '{print $i}' | sort | uniq | wc -l
+done
+```
+Since the numbers presented include the variable name, we need to substract 1 from each of them. Thus, the count for each unique value of these variables are 9, 12, 3 and 8, respectively.
+
+```{bash}
+zmore < ~/mimic/core/admissions.csv.gz | head -1
+```
+
+## Q4. Who's popular in Price and Prejudice
+
+```{bash}
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+```
+`wget -nc` can link to the website and download the file to the current working directory. With the `-nc` option, `wget` will not download the file again by overwriting the current file.
+
+Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
+
+```{bash}
+cat ~/203b-hw/biostat-203b-2023-winter/hw1/pg42671.txt |grep "Elizabeth" | sort | uniq | wc -l
+```
+
+
+```{bash}
+# wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+for char in Elizabeth Jane Lydia Darcy
+do
+  echo $char:
+  cat ~/203b-hw/biostat-203b-2023-winter/hw1/pg42671.txt |grep "$char" | sort | uniq | wc -l
+done
+```
+
+
+
