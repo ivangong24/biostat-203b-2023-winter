@@ -125,15 +125,11 @@ zmore < ~/mimic/core/admissions.csv.gz | head -1
 ## Q4. Who's popular in Price and Prejudice
 
 ```{bash}
-wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+# wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
 `wget -nc` can link to the website and download the file to the current working directory. With the `-nc` option, `wget` will not download the file again by overwriting the current file.
 
 Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
-
-```{bash}
-cat ~/203b-hw/biostat-203b-2023-winter/hw1/pg42671.txt |grep "Elizabeth" | sort | uniq | wc -l
-```
 
 
 ```{bash}
@@ -144,6 +140,60 @@ do
   cat ~/203b-hw/biostat-203b-2023-winter/hw1/pg42671.txt |grep "$char" | sort | uniq | wc -l
 done
 ```
+This method is not 100% accurate since if the word appears twice or more in one line, the count will still be 1. However, it could give us an overview of the frequency of each word appears in the book.
+
+```{bash}
+
+```
+
+
+2. What’s the difference between the following two commands?
+
+```{bash}
+echo 'hello, world' > test1.txt
+```
+
+and
+
+```{bash}
+echo 'hello, world' >> test2.txt
+```
+
+Both of them will store `"hello, world"` into a text file. For the first one, 
+
+
+3. Using your favorite text editor (e.g., vi), type the following and save the file as `middle.sh`:
+
+```{bash}
+#!/bin/sh
+# Select lines from the middle of a file.
+# Usage: bash middle.sh filename end_line num_lines
+# head -n "$2" "$1" | tail -n "$3"
+```
+
+```{bash}
+chmod +x middle.sh
+```
+
+```{bash}
+ls -al ~/203b-hw/hw1
+```
+
+
+Using chmod to make the file executable by the owner, and run
+
+```{bash}
+./middle.sh pg42671.txt 20 5
+```
+
+Explain the output. Explain the meaning of `"$1"`, `"$2"` and `"$3"` in this shell script. Why do we need the first line of the shell script?
+
+The output showed the author and editor information of this book, which is the information from line 16 to line 20 (a total of 5 lines were displayed here).
+
+`"$1"`, `"$2"` and `"$3"` in this shell script are the shifting arguements that pass value from one to another. For example, the value in `"$1"` will be put into `"$2"`, etc. 
 
 
 
+## Q5. More fun with Linux
+
+Try following commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752 (anything unusual?)`, `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
