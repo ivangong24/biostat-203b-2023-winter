@@ -394,11 +394,20 @@ procedureevents.csv.gz</code></pre>
 </section>
 <section id="q4.-whos-popular-in-price-and-prejudice" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="q4.-whos-popular-in-price-and-prejudice"><span class="header-section-number">4</span> Q4. Who’s popular in Price and Prejudice</h2>
+<p><strong>Solution</strong></p>
+<ol type="1">
+<li>a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.</li>
+</ol>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<ol start="2" type="a">
+<li>Explain what wget -nc does.</li>
+</ol>
 <p><code>wget -nc</code> can link to the website and download the file to the current working directory. With the <code>-nc</code> option, <code>wget</code> will not download the file again by overwriting the current file.</p>
-<p>Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.</p>
+<ol start="3" type="a">
+<li>Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.</li>
+</ol>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> char <span class="kw">in</span> Elizabeth Jane Lydia Darcy</span>
@@ -425,7 +434,7 @@ Darcy:
 </div>
 <p>and</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'hello world'</span> <span class="op">&gt;&gt;</span> test2.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'hello, world'</span> <span class="op">&gt;&gt;</span> test2.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Both of them will write <code>"hello, world"</code> into a text file. For the first one, it directs the output from <code>echo 'hello, world'</code> to the text file. However, for the second one, it appends the output from the command to the text file. For example, if I further type <code>echo 'hello' &gt;&gt; test2.txt</code>, it will generate another line showing <code>hello</code> in test2.text. If I type <code>echo 'hello' &gt; test1.txt</code> later, it will overwrite test1.txt and only show <code>hello</code> in the first line.</p>
 <ol start="3" type="1">
@@ -443,18 +452,18 @@ Darcy:
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-al</span> ~/203b-hw/hw1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 1600
-drwxr-xr-x@ 11 ivan  staff     352 Jan 18 11:18 .
-drwxr-xr-x@ 10 ivan  staff     320 Jan 18 09:19 ..
--rw-r--r--@  1 ivan  staff    6148 Jan 13 14:29 .DS_Store
--rw-r--r--@  1 ivan  staff   49467 Jan 18 10:57 hw1.html
--rw-r--r--@  1 ivan  staff    7836 Jan 18 11:18 hw1.qmd
--rw-r--r--@  1 ivan  staff    7904 Jan 18 11:18 hw1.rmarkdown
-drwxr-xr-x@  3 ivan  staff      96 Jan 18 10:57 hw1_files
--rwxr-xr-x@  1 ivan  staff     138 Jan 17 15:06 middle.sh
+<pre><code>total 1616
+drwxr-xr-x@ 11 ivan  staff     352 Jan 18 11:59 .
+drwxr-xr-x@ 10 ivan  staff     320 Jan 18 11:35 ..
+-rw-r--r--@  1 ivan  staff    6148 Jan 18 11:27 .DS_Store
+-rw-r--r--@  1 ivan  staff   50552 Jan 18 11:53 hw1.html
+-rw-r--r--@  1 ivan  staff    8213 Jan 18 11:58 hw1.qmd
+-rw-r--r--@  1 ivan  staff    8281 Jan 18 11:59 hw1.rmarkdown
+drwxr-xr-x@  3 ivan  staff      96 Jan 18 11:53 hw1_files
+-rwxr-xr-x@  1 ivan  staff     138 Jan 18 11:27 middle.sh
 -rw-r--r--@  1 ivan  staff  725060 Dec 19 08:14 pg42671.txt
--rw-r--r--@  1 ivan  staff      13 Jan 18 11:19 test1.txt
--rw-r--r--@  1 ivan  staff      43 Jan 18 11:19 test2.txt</code></pre>
+-rw-r--r--@  1 ivan  staff      13 Jan 18 12:00 test1.txt
+-rw-r--r--@  1 ivan  staff      69 Jan 18 12:00 test2.txt</code></pre>
 </div>
 </div>
 <p>Using chmod to make the file executable by the owner, and run</p>
@@ -545,11 +554,11 @@ Su Mo Tu We Th Fr Sa
                       </code></pre>
 </div>
 </div>
-<p><code>cal 9 1752</code> shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th.</p>
+<p><code>cal 9 1752</code> shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th. This is because the British Empire changed the calendar from Julian calendar to Gregorian calendar in 1752 in order to change the mean length of a calendar year from 365.25 days to 365.2425 days.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Wed Jan 18 11:19:48 PST 2023</code></pre>
+<pre><code>Wed Jan 18 12:00:24 PST 2023</code></pre>
 </div>
 </div>
 <p><code>date</code> shows the current day, date, time, time zone and year.</p>
@@ -577,14 +586,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>11:19  up 4 days, 20 hrs, 2 users, load averages: 3.15 3.65 4.19</code></pre>
+<pre><code>12:00  up 4 days, 20:41, 2 users, load averages: 3.44 3.24 3.16</code></pre>
 </div>
 </div>
 <p><code>uptime</code> prints the current runtime and system load of the machine.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivan                          Jan 18 11:19 </code></pre>
+<pre><code>ivan                          Jan 18 12:00 </code></pre>
 </div>
 </div>
 <p><code>who am i</code> prints the current login username of this computer and the current date and time.</p>
@@ -599,10 +608,10 @@ ivan             ttys000      Jan 17 15:56 </code></pre>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>11:19  up 4 days, 20 hrs, 2 users, load averages: 3.15 3.65 4.19
+<pre><code>12:00  up 4 days, 20:41, 2 users, load averages: 3.44 3.24 3.16
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 ivan     console  -                Fri15   4days -
-ivan     s000     -                Tue15      23 -bash         &lt;ff&gt;&lt;bf&gt;    /bin/bash </code></pre>
+ivan     s000     -                Tue15    1:04 -bash         &lt;ff&gt;&lt;bf&gt;    /bin/bash </code></pre>
 </div>
 </div>
 <p><code>w</code> displays the information of each current login users, current runtime and system load of the machine.</p>
@@ -640,9 +649,9 @@ ivan      ttys000                   Fri Jan 13 10:09 - 10:09  (00:00)</code></pr
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.012s
+real    0m5.013s
 user    0m0.001s
-sys 0m0.003s</code></pre>
+sys 0m0.002s</code></pre>
 </div>
 </div>
 <p><code>time sleep 5</code> prints the runtime of this command by pausing the script for 5 seconds.</p>

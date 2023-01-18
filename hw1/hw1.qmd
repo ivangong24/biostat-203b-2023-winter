@@ -133,13 +133,19 @@ Since the numbers presented include the variable name, we need to substract 1 fr
 
 ## Q4. Who's popular in Price and Prejudice
 
+**Solution**
+
+1. a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+
 ```{bash}
 # wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
+
+b) Explain what wget -nc does. 
+
 `wget -nc` can link to the website and download the file to the current working directory. With the `-nc` option, `wget` will not download the file again by overwriting the current file.
 
-Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
-
+c) Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 
 ```{bash}
 # wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
@@ -159,7 +165,7 @@ echo 'hello, world' > test1.txt
 and
 
 ```{bash}
-echo 'hello world' >> test2.txt
+echo 'hello, world' >> test2.txt
 ```
 
 Both of them will write `"hello, world"` into a text file. For the first one, it directs the output from `echo 'hello, world'` to the text file. However, for the second one, it appends the output from the command to the text file. For example, if I further type `echo 'hello' >> test2.txt`, it will generate another line showing `hello` in test2.text. If I type `echo 'hello' > test1.txt` later, it will overwrite test1.txt and only show `hello` in the first line.
@@ -217,7 +223,7 @@ cal 2021
 cal 9 1752
 ```
 
-`cal 9 1752` shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th.
+`cal 9 1752` shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th. This is because the British Empire changed the calendar from Julian calendar to Gregorian calendar in 1752 in order to change the mean length of a calendar year from 365.25 days to 365.2425 days.
 
 ```{bash}
 date
