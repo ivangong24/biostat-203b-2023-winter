@@ -124,7 +124,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Biostat 203B Homework 1</h1>
-<p class="subtitle lead">2023-01-18</p>
+<p class="subtitle lead">2023-01-20</p>
 </div>
 
 
@@ -270,6 +270,7 @@ procedureevents.csv.gz</code></pre>
 -rw-rw-r--@ 1 ivan  staff  53014503 Mar 15  2021 /Users/ivan/mimic/core/transfers.csv.gz</code></pre>
 </div>
 </div>
+<p>It shows the detailed contents of the <code>.gz</code> files within the specified directory.</p>
 <p>Display the number of lines in each data file using a similar loop</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> datafile <span class="kw">in</span> ~/mimic/core/<span class="pp">*</span>.gz</span>
@@ -320,7 +321,9 @@ procedureevents.csv.gz</code></pre>
 </div>
 </div>
 <ol start="6" type="1">
+<li><ol type="a">
 <li>What are the possible values taken by each of the variable <code>admission_type</code>, <code>admission_location</code>, <code>insurance</code>, and <code>ethnicity</code>?</li>
+</ol></li>
 </ol>
 <p>First, we need to locate the positions of these variables:</p>
 <div class="cell" data-layout-align="center">
@@ -396,10 +399,12 @@ procedureevents.csv.gz</code></pre>
 <h2 data-number="4" class="anchored" data-anchor-id="q4.-whos-popular-in-price-and-prejudice"><span class="header-section-number">4</span> Q4. Who’s popular in Price and Prejudice</h2>
 <p><strong>Solution</strong></p>
 <ol type="1">
-<li>a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.</li>
+<li><ol type="a">
+<li>Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.</li>
+</ol></li>
 </ol>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> <span class="at">-nc</span> http://www.gutenberg.org/cache/epub/42671/pg42671.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ol start="2" type="a">
 <li>Explain what wget -nc does.</li>
@@ -409,12 +414,11 @@ procedureevents.csv.gz</code></pre>
 <li>Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.</li>
 </ol>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> char <span class="kw">in</span> Elizabeth Jane Lydia Darcy</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="va">$char</span>:</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grep</span> <span class="at">-o</span> <span class="st">"</span><span class="va">$char</span><span class="st">"</span> ~/203b-hw/hw1/pg42671.txt <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> char <span class="kw">in</span> Elizabeth Jane Lydia Darcy</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="va">$char</span>:</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grep</span> <span class="at">-o</span> <span class="st">"</span><span class="va">$char</span><span class="st">"</span> ~/203b-hw/hw1/pg42671.txt <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Elizabeth:
      634
@@ -444,7 +448,7 @@ Darcy:
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/sh</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Select lines from the middle of a file.</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Usage: bash middle.sh filename end_line num_lines</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># head -n "$2" "$1" | tail -n "$3"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-n</span> <span class="st">"</span><span class="va">$2</span><span class="st">"</span> <span class="st">"</span><span class="va">$1</span><span class="st">"</span> <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> <span class="st">"</span><span class="va">$3</span><span class="st">"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -453,17 +457,18 @@ Darcy:
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-al</span> ~/203b-hw/hw1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 1616
-drwxr-xr-x@ 11 ivan  staff     352 Jan 18 11:59 .
-drwxr-xr-x@ 10 ivan  staff     320 Jan 18 11:35 ..
+drwxr-xr-x@ 12 ivan  staff     384 Jan 20 10:14 .
+drwxr-xr-x@ 10 ivan  staff     320 Jan 20 09:10 ..
 -rw-r--r--@  1 ivan  staff    6148 Jan 18 11:27 .DS_Store
--rw-r--r--@  1 ivan  staff   50552 Jan 18 11:53 hw1.html
--rw-r--r--@  1 ivan  staff    8213 Jan 18 11:58 hw1.qmd
--rw-r--r--@  1 ivan  staff    8281 Jan 18 11:59 hw1.rmarkdown
-drwxr-xr-x@  3 ivan  staff      96 Jan 18 11:53 hw1_files
+-rw-r--r--@  1 ivan  staff       0 Jan 19 16:19 .Rhistory
+-rw-r--r--   1 ivan  staff   52502 Jan 20 10:12 hw1.html
+-rw-r--r--@  1 ivan  staff    8500 Jan 20 10:14 hw1.qmd
+-rw-r--r--@  1 ivan  staff    8568 Jan 20 10:14 hw1.rmarkdown
+drwxr-xr-x@  3 ivan  staff      96 Jan 20 09:59 hw1_files
 -rwxr-xr-x@  1 ivan  staff     138 Jan 18 11:27 middle.sh
 -rw-r--r--@  1 ivan  staff  725060 Dec 19 08:14 pg42671.txt
--rw-r--r--@  1 ivan  staff      13 Jan 18 12:00 test1.txt
--rw-r--r--@  1 ivan  staff      69 Jan 18 12:00 test2.txt</code></pre>
+-rw-r--r--@  1 ivan  staff      13 Jan 20 10:15 test1.txt
+-rw-r--r--@  1 ivan  staff     108 Jan 20 10:15 test2.txt</code></pre>
 </div>
 </div>
 <p>Using chmod to make the file executable by the owner, and run</p>
@@ -479,7 +484,7 @@ Editor: R. W. (Robert William) Chapman
 </div>
 <p>Explain the output. Explain the meaning of <code>"$1"</code>, <code>"$2"</code> and <code>"$3"</code> in this shell script. Why do we need the first line of the shell script?</p>
 <p>The output showed the author and editor information of this book, which is the information from line 16 to line 20 (a total of 5 lines were displayed here).</p>
-<p><code>"$1"</code>, <code>"$2"</code> and <code>"$3"</code> in this shell script are the shifting arguements that pass value from one to another. For example, the value in <code>"$1"</code> will be put into <code>"$2"</code>, etc.</p>
+<p><code>"$1"</code>, <code>"$2"</code> and <code>"$3"</code> in this shell script are the shifting arguements that pass value from one to another. For example, the value in <code>"$1"</code> will be put into <code>"$2"</code>, etc. In this case, the function in the script will first use the <code>head</code> function to subtract the first 20 lines from the text file, then the <code>pipe</code> will pass the value to the <code>tail</code> function to show the last 5 lines from the output (i.e., line 16-20).</p>
 <p>The reason why we need the first line is that it will identify the script as a bash script and will interpret the file using bash.</p>
 </section>
 <section id="q5.-more-fun-with-linux" class="level2" data-number="5">
@@ -492,7 +497,7 @@ Editor: R. W. (Robert William) Chapman
 Su Mo Tu We Th Fr Sa  
  1  2  3  4  5  6  7  
  8  9 10 11 12 13 14  
-15 16 17 _1_8 19 20 21  
+15 16 17 18 19 _2_0 21  
 22 23 24 25 26 27 28  
 29 30 31              
                       </code></pre>
@@ -558,14 +563,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Wed Jan 18 12:00:24 PST 2023</code></pre>
+<pre><code>Fri Jan 20 10:15:44 PST 2023</code></pre>
 </div>
 </div>
 <p><code>date</code> shows the current day, date, time, time zone and year.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>dhcp-10-144-178-5.dgsom.guest</code></pre>
+<pre><code>Yufans-MacBook-Pro.local</code></pre>
 </div>
 </div>
 <p><code>hostname</code> shows the hostname of the machine which the user is working on.</p>
@@ -579,21 +584,21 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-a</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Darwin dhcp-10-144-178-5.dgsom.guest 22.2.0 Darwin Kernel Version 22.2.0: Fri Nov 11 02:08:47 PST 2022; root:xnu-8792.61.2~4/RELEASE_X86_64 x86_64</code></pre>
+<pre><code>Darwin Yufans-MacBook-Pro.local 22.2.0 Darwin Kernel Version 22.2.0: Fri Nov 11 02:08:47 PST 2022; root:xnu-8792.61.2~4/RELEASE_X86_64 x86_64</code></pre>
 </div>
 </div>
 <p><code>uname -a</code> reports all of the information related to the system, (i.e., hostname, kernel release and version, machine hardware name, machine platform, etc.)</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>12:00  up 4 days, 20:41, 2 users, load averages: 3.44 3.24 3.16</code></pre>
+<pre><code>10:15  up 6 days, 18:56, 2 users, load averages: 2.90 3.58 3.80</code></pre>
 </div>
 </div>
 <p><code>uptime</code> prints the current runtime and system load of the machine.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivan                          Jan 18 12:00 </code></pre>
+<pre><code>ivan                          Jan 20 10:15 </code></pre>
 </div>
 </div>
 <p><code>who am i</code> prints the current login username of this computer and the current date and time.</p>
@@ -601,17 +606,17 @@ Su Mo Tu We Th Fr Sa
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ivan             console      Jan 13 15:19 
-ivan             ttys000      Jan 17 15:56 </code></pre>
+ivan             ttys000      Jan 19 16:12 </code></pre>
 </div>
 </div>
 <p><code>who</code> prints the username currently logged into Linux operating system and the time of login.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>12:00  up 4 days, 20:41, 2 users, load averages: 3.44 3.24 3.16
+<pre><code>10:15  up 6 days, 18:56, 2 users, load averages: 2.90 3.58 3.80
 USER     TTY      FROM              LOGIN@  IDLE WHAT
-ivan     console  -                Fri15   4days -
-ivan     s000     -                Tue15    1:04 -bash         &lt;ff&gt;&lt;bf&gt;    /bin/bash </code></pre>
+ivan     console  -                Fri15   6days -
+ivan     s000     -                Thu16       3 -bash         &lt;ff&gt;&lt;bf&gt;    /bin/bash </code></pre>
 </div>
 </div>
 <p><code>w</code> displays the information of each current login users, current runtime and system load of the machine.</p>
@@ -625,16 +630,16 @@ ivan     s000     -                Tue15    1:04 -bash         &lt;ff&gt;&lt;bf&
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivan      ttys000                   Tue Jan 17 15:56   still logged in
+<pre><code>ivan      ttys000                   Thu Jan 19 16:12   still logged in
+ivan      ttys000                   Wed Jan 18 15:21 - 15:21  (00:00)
+ivan      ttys000                   Tue Jan 17 15:56 - 15:56  (00:00)
 ivan      ttys000                   Fri Jan 13 20:35 - 20:35  (00:00)
 ivan      console                   Fri Jan 13 15:19   still logged in
 reboot    ~                         Fri Jan 13 15:19 
 shutdown  ~                         Fri Jan 13 15:11 
 root      console                   Fri Jan 13 15:10 - shutdown  (00:00)
 ivan      console                   Fri Jan 13 15:04 - 15:10  (00:05)
-reboot    ~                         Fri Jan 13 15:04 
-shutdown  ~                         Fri Jan 13 15:03 
-ivan      ttys000                   Fri Jan 13 10:09 - 10:09  (00:00)</code></pre>
+reboot    ~                         Fri Jan 13 15:04 </code></pre>
 </div>
 </div>
 <p><code>last | head</code> displays the first 10 rows of the last login sessions of the system users.</p>
@@ -649,9 +654,9 @@ ivan      ttys000                   Fri Jan 13 10:09 - 10:09  (00:00)</code></pr
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.013s
+real    0m5.024s
 user    0m0.001s
-sys 0m0.002s</code></pre>
+sys 0m0.004s</code></pre>
 </div>
 </div>
 <p><code>time sleep 5</code> prints the runtime of this command by pausing the script for 5 seconds.</p>
