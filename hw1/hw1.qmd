@@ -218,7 +218,7 @@ cal 2021
 cal 9 1752
 ```
 
-`cal 9 1752` shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th.
+`cal 9 1752` shows the calendar of September in 1752. The unusual thing was that it missed days from September 3rd to September 13th. This is because the British Empire changed the calendar from Julian calendar to Gregorian calendar in 1752 in order to change the mean length of a calendar year from 365.25 days to 365.2425 days.
 
 ```{bash}
 date
