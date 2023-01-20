@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 1"
 subtitle: "`r Sys.Date()`"
-author: Yufan Gong 305301666
+author: "Yufan Gong (UID: 305301666)"
 format:
   html:
     theme: cosmo
