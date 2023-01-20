@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 1"
 subtitle: "`r Sys.Date()`"
-author: Yufan Gong 305301666
+author: "Yufan Gong (UID: 305301666)"
 format:
   html:
     theme: cosmo
@@ -137,6 +137,7 @@ Since the numbers presented include the variable name, we need to substract 1 fr
 **Solution**
 
 1. a) Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+
 
 ```{bash eval=FALSE}
 wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
