@@ -133,14 +133,21 @@ Since the numbers presented include the variable name, we need to substract 1 fr
 
 ## Q4. Who's popular in Price and Prejudice
 
-1. Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+
+**Solution**
+
+1. a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+=======
+
 ```{bash}
 # wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
+
+b) Explain what wget -nc does. 
+
 `wget -nc` can link to the website and download the file to the current working directory. With the `-nc` option, `wget` will not download the file again by overwriting the current file.
 
-Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
-
+c) Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 
 ```{bash}
 # wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
