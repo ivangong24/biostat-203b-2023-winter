@@ -102,7 +102,7 @@ c) How many unique patients (identified by subject_id) are in this data file?
 zcat < ~/mimic/core/admissions.csv.gz |  awk -F "," '{print $1}' | sort | uniq | wc -l
 ```
 
-6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`?
+6. a) What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`?
 
 
 First, we need to locate the positions of these variables: 
@@ -133,9 +133,11 @@ Since the numbers presented include the variable name, we need to substract 1 fr
 
 ## Q4. Who's popular in Price and Prejudice
 
+
 **Solution**
 
 1. a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+=======
 
 ```{bash}
 # wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
