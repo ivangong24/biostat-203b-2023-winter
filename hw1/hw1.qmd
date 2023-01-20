@@ -76,6 +76,7 @@ do
   ls -l $datafile
 done
 ```
+It shows the detailed contents of the `.gz` files within the specified directory. 
     
 Display the number of lines in each data file using a similar loop
 
@@ -91,8 +92,8 @@ done
 ```{bash}
 zmore < ~/mimic/core/admissions.csv.gz | head -5
 ```
-b) How many rows are in this data file?
 
+b) How many rows are in this data file?
 ```{bash}
 zcat < ~/mimic/core/admissions.csv.gz | wc -l
 ```
@@ -133,14 +134,12 @@ Since the numbers presented include the variable name, we need to substract 1 fr
 
 ## Q4. Who's popular in Price and Prejudice
 
-
 **Solution**
 
-1. a)Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
-=======
+1. a) Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
 
-```{bash}
-# wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+```{bash eval=FALSE}
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
 
 b) Explain what wget -nc does. 
@@ -150,7 +149,6 @@ b) Explain what wget -nc does.
 c) Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 
 ```{bash}
-# wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
@@ -175,11 +173,11 @@ Both of them will write `"hello, world"` into a text file. For the first one, it
 
 3. Using your favorite text editor (e.g., vi), type the following and save the file as `middle.sh`:
 
-```{bash}
+```{bash eval=FALSE}
 #!/bin/sh
 # Select lines from the middle of a file.
 # Usage: bash middle.sh filename end_line num_lines
-# head -n "$2" "$1" | tail -n "$3"
+head -n "$2" "$1" | tail -n "$3"
 ```
 
 ```{bash}
@@ -201,7 +199,7 @@ Explain the output. Explain the meaning of `"$1"`, `"$2"` and `"$3"` in this she
 
 The output showed the author and editor information of this book, which is the information from line 16 to line 20 (a total of 5 lines were displayed here).
 
-`"$1"`, `"$2"` and `"$3"` in this shell script are the shifting arguements that pass value from one to another. For example, the value in `"$1"` will be put into `"$2"`, etc. 
+`"$1"`, `"$2"` and `"$3"` in this shell script are the shifting arguements that pass value from one to another. For example, the value in `"$1"` will be put into `"$2"`, etc. In this case, the function in the script will first use the `head` function to subtract the first 20 lines from the text file, then the `pipe` will pass the value to the  `tail` function to show the last 5 lines from the output (i.e., line 16-20).
 
 The reason why we need the first line is that it will identify the script as a bash script and will interpret the file using bash. 
 
