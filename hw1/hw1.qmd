@@ -1,7 +1,8 @@
 ---
 title: "Biostat 203B Homework 1"
-subtitle: "`r Sys.Date()`"
-author: Yufan Gong 305301666
+# subtitle: ""
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: "Yufan Gong (UID: 305301666)"
 format:
   html:
     theme: cosmo
@@ -31,7 +32,9 @@ sessionInfo()
 
 ## Q2. Data ethics training
 
-**Solution** Here is the completion report & certificate link: 
+**Solution** 
+
+Here is the completion report & certificate link: 
 
   <https://www.citiprogram.org/verify/?keaf58f19-b1d0-415e-870b-2f584a82fde3-53620134>
 
@@ -103,7 +106,7 @@ c) How many unique patients (identified by subject_id) are in this data file?
 zcat < ~/mimic/core/admissions.csv.gz |  awk -F "," '{print $1}' | sort | uniq | wc -l
 ```
 
-6. a) What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`?
+6. a) What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Report the count for each unique value of these variables.
 
 
 First, we need to locate the positions of these variables: 
@@ -122,21 +125,13 @@ do
 done
 ```
 
-b) report the count for each unique value of these variables
-```{bash}
-for i in 6 7 9 12
-do
- zcat < ~/mimic/core/admissions.csv.gz |  awk -F ","  -v i="$i" '{print $i}' | sort | uniq | wc -l
-done
-```
-Since the numbers presented include the variable name, we need to substract 1 from each of them. Thus, the count for each unique value of these variables are 9, 12, 3 and 8, respectively.
-
 
 ## Q4. Who's popular in Price and Prejudice
 
 **Solution**
 
 1. a) Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+
 
 ```{bash eval=FALSE}
 wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
@@ -206,6 +201,8 @@ The reason why we need the first line is that it will identify the script as a b
 ## Q5. More fun with Linux
 
 Try following commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
+
+**Solution**
 
 ```{bash}
 cal
