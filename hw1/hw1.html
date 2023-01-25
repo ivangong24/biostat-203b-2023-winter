@@ -99,6 +99,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <link href="hw1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="hw1_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -318,6 +319,7 @@ procedureevents.csv.gz</code></pre>
 <pre><code>  523741</code></pre>
 </div>
 </div>
+<p>Since the output here will include the header (i.e., the column name), so the rows will be <span class="math inline">\(523741-1 = 523740\)</span>.</p>
 <ol start="3" type="a">
 <li>How many unique patients (identified by subject_id) are in this data file?</li>
 </ol>
@@ -327,6 +329,7 @@ procedureevents.csv.gz</code></pre>
 <pre><code>  256879</code></pre>
 </div>
 </div>
+<p>Similarly as b), we need to subtract 1 from the output. There are 256878 unique patients.</p>
 <ol start="6" type="1">
 <li><ol type="a">
 <li>What are the possible values taken by each of the variable <code>admission_type</code>, <code>admission_location</code>, <code>insurance</code>, and <code>ethnicity</code>? Report the count for each unique value of these variables.</li>
@@ -448,18 +451,18 @@ Darcy:
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-al</span> ~/203b-hw/hw1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 1616
-drwxr-xr-x@ 12 ivan  staff     384 Jan 24 16:54 .
-drwxr-xr-x@ 10 ivan  staff     320 Jan 24 16:54 ..
+drwxr-xr-x@ 12 ivan  staff     384 Jan 24 18:12 .
+drwxr-xr-x@ 10 ivan  staff     320 Jan 24 18:12 ..
 -rw-r--r--@  1 ivan  staff    6148 Jan 20 10:34 .DS_Store
 -rw-r--r--@  1 ivan  staff       0 Jan 19 16:19 .Rhistory
--rw-r--r--@  1 ivan  staff   51384 Jan 20 14:03 hw1.html
--rw-r--r--@  1 ivan  staff    8228 Jan 24 16:00 hw1.qmd
--rw-r--r--@  1 ivan  staff    8294 Jan 24 16:54 hw1.rmarkdown
-drwxr-xr-x@  4 ivan  staff     128 Jan 20 14:03 hw1_files
+-rw-r--r--@  1 ivan  staff   50056 Jan 24 17:00 hw1.html
+-rw-r--r--@  1 ivan  staff    8432 Jan 24 18:11 hw1.qmd
+-rw-r--r--@  1 ivan  staff    8498 Jan 24 18:12 hw1.rmarkdown
+drwxr-xr-x@  4 ivan  staff     128 Jan 24 17:00 hw1_files
 -rwxr-xr-x@  1 ivan  staff     138 Jan 18 11:27 middle.sh
 -rw-r--r--@  1 ivan  staff  725060 Dec 19 08:14 pg42671.txt
--rw-r--r--@  1 ivan  staff      13 Jan 24 16:55 test1.txt
--rw-r--r--@  1 ivan  staff     134 Jan 24 16:55 test2.txt</code></pre>
+-rw-r--r--@  1 ivan  staff      13 Jan 24 18:13 test1.txt
+-rw-r--r--@  1 ivan  staff     147 Jan 24 18:13 test2.txt</code></pre>
 </div>
 </div>
 <p>Using chmod to make the file executable by the owner, and run</p>
@@ -555,14 +558,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Tue Jan 24 16:55:36 PST 2023</code></pre>
+<pre><code>Tue Jan 24 18:13:47 PST 2023</code></pre>
 </div>
 </div>
 <p><code>date</code> shows the current day, date, time, time zone and year.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>yufans-mbp.ad.medctr.ucla.edu</code></pre>
+<pre><code>Yufans-MacBook-Pro.local</code></pre>
 </div>
 </div>
 <p><code>hostname</code> shows the hostname of the machine which the user is working on.</p>
@@ -576,21 +579,21 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-a</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Darwin yufans-mbp.ad.medctr.ucla.edu 22.2.0 Darwin Kernel Version 22.2.0: Fri Nov 11 02:08:47 PST 2022; root:xnu-8792.61.2~4/RELEASE_X86_64 x86_64</code></pre>
+<pre><code>Darwin Yufans-MacBook-Pro.local 22.2.0 Darwin Kernel Version 22.2.0: Fri Nov 11 02:08:47 PST 2022; root:xnu-8792.61.2~4/RELEASE_X86_64 x86_64</code></pre>
 </div>
 </div>
 <p><code>uname -a</code> reports all of the information related to the system, (i.e., hostname, kernel release and version, machine hardware name, machine platform, etc.)</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>16:55  up 11 days,  1:36, 1 user, load averages: 6.28 4.75 3.31</code></pre>
+<pre><code>18:13  up 11 days,  2:54, 1 user, load averages: 6.28 4.69 5.31</code></pre>
 </div>
 </div>
 <p><code>uptime</code> prints the current runtime and system load of the machine.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivan                          Jan 24 16:55 </code></pre>
+<pre><code>ivan                          Jan 24 18:13 </code></pre>
 </div>
 </div>
 <p><code>who am i</code> prints the current login username of this computer and the current date and time.</p>
@@ -604,7 +607,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>16:55  up 11 days,  1:36, 1 user, load averages: 6.28 4.75 3.31
+<pre><code>18:13  up 11 days,  2:54, 1 user, load averages: 6.28 4.69 5.31
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 ivan     console  -                13Jan23 11days -</code></pre>
 </div>
@@ -620,16 +623,16 @@ ivan     console  -                13Jan23 11days -</code></pre>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivan      ttys000                   Fri Jan 20 14:07 - 14:07  (00:00)
+<pre><code>ivan      ttys000                   Tue Jan 24 17:05 - 17:05  (00:00)
+ivan      ttys000                   Tue Jan 24 17:03 - 17:03  (00:00)
+ivan      ttys000                   Tue Jan 24 17:02 - 17:02  (00:00)
+ivan      ttys000                   Tue Jan 24 16:59 - 16:59  (00:00)
+ivan      ttys000                   Fri Jan 20 14:07 - 14:07  (00:00)
 ivan      ttys000                   Fri Jan 20 14:03 - 14:03  (00:00)
 ivan      ttys000                   Fri Jan 20 11:03 - 11:03  (00:00)
 ivan      ttys000                   Fri Jan 20 11:00 - 11:00  (00:00)
 ivan      ttys000                   Fri Jan 20 10:54 - 10:54  (00:00)
-ivan      ttys000                   Fri Jan 20 10:38 - 10:38  (00:00)
-ivan      ttys000                   Fri Jan 20 10:20 - 10:20  (00:00)
-ivan      ttys000                   Thu Jan 19 16:12 - 16:12  (00:00)
-ivan      ttys000                   Wed Jan 18 15:21 - 15:21  (00:00)
-ivan      ttys000                   Tue Jan 17 15:56 - 15:56  (00:00)</code></pre>
+ivan      ttys000                   Fri Jan 20 10:38 - 10:38  (00:00)</code></pre>
 </div>
 </div>
 <p><code>last | head</code> displays the first 10 rows of the last login sessions of the system users.</p>
@@ -644,9 +647,9 @@ ivan      ttys000                   Tue Jan 17 15:56 - 15:56  (00:00)</code></pr
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.031s
+real    0m5.015s
 user    0m0.001s
-sys 0m0.006s</code></pre>
+sys 0m0.003s</code></pre>
 </div>
 </div>
 <p><code>time sleep 5</code> prints the runtime of this command by pausing the script for 5 seconds.</p>

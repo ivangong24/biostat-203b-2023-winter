@@ -100,11 +100,15 @@ b) How many rows are in this data file?
 ```{bash}
 zcat < ~/mimic/core/admissions.csv.gz | wc -l
 ```
+Since the output here will include the header (i.e., the column name), so the rows will be $523741-1 = 523740$.
+
 
 c) How many unique patients (identified by subject_id) are in this data file?
 ```{bash}
 zcat < ~/mimic/core/admissions.csv.gz |  awk -F "," '{print $1}' | sort | uniq | wc -l
 ```
+Similarly as b), we need to subtract 1 from the output. There are 256878 unique patients.
+
 
 6. a) What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Report the count for each unique value of these variables.
 
