@@ -84,11 +84,13 @@ It shows the detailed contents of the `.gz` files within the specified directory
 Display the number of lines in each data file using a similar loop
 
 ```{bash}
-for datafile in ~/mimic/core/*.gz
-do
-  echo $datafile:
-  zcat < $datafile | wc -l
-done
+for i in core hosp icu
+  do for datafile in ~/mimic/$i/*.gz
+        do
+        echo $datafile:
+        zcat < $datafile | wc -l
+        done
+  done
 ```
 
 5. a) Display the first few lines of `admissions.csv.gz`
