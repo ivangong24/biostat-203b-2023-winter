@@ -153,9 +153,11 @@ c) Complete the following loop to tabulate the number of times each of the four 
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
-  grep -o "$char" ~/203b-hw/hw1/pg42671.txt | wc -l
+  grep -o -i "$char" ~/203b-hw/hw1/pg42671.txt | wc -l
 done
 ```
+`grep` can search the keyword in the `.txt` file. By adding `-o` as an option, the command will only print the keyword at each line. By adding `-i` as an option, the command will make `grep` case insensitive.
+
 
 2. What’s the difference between the following two commands?
 
