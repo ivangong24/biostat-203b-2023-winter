@@ -27,7 +27,7 @@ sessionInfo()
 ```
 
 Load necessary libraries (you can add more as needed).
-```{r setup, message=FALSE}
+```{r setup, message = FALSE}
 library(data.table)
 library(lubridate)
 library(R.utils)
@@ -41,17 +41,6 @@ mimic_path <- "~/mimic"
 
 In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the [MIMIC-IV](https://mimic.mit.edu/docs/iv/) data introduced in [homework 1](https://ucla-biostat-203b.github.io/2023winter/hw/hw1/hw1.html) and to build a cohort of ICU stays.
 
-```{bash eval=FALSE}
-for folder in core hosp icu MIMIC-reduce-chartevents
-  do 
-    for datafile in /Volumes/Data/mimic-iv-1.0/$folder
-      do 
-        ln -s $datafile ~/mimic/$folder
-      done
-  done
-```
-It seems like R requires to use the full path pointing to the original file.
-Here I re-link each file within each folder.
 
 Display the contents of MIMIC data folder. 
 ```{r}
@@ -70,7 +59,7 @@ Which function is fastest? Is there difference in the (default) parsed data type
 
 For later questions, we stick to the `read_csv` in tidyverse.
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 list(read.csv, read_csv, fread) %>% 
   map(
     ~str_c(mimic_path, "/core", "/admissions.csv.gz") %>% 
@@ -105,7 +94,7 @@ system(
 
 1. Import `icustatys.csv.gz` as a tibble `icustays_tble`. 
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 icustays_tble <- str_c(mimic_path, "/icu/icustays.csv.gz") %>% 
   read_csv()
 ```
@@ -139,10 +128,10 @@ icustays_tble %>%
 4. For each `subject_id`, let's only keep the first ICU stay in the tibble `icustays_tble`. (Hint: `slice_min` and `slice_max` may take long. Think alternative ways to achieve the same function.)
 
 ```{r}
-icustays_tble_first <- icustays_tble %>% 
+icustays_tble <- icustays_tble %>% 
   group_by(subject_id) %>% 
   arrange(intime) %>% 
-  summarise(first_stay = first(intime))
+  slice_head(n = 1)
 ```
 
 
@@ -162,7 +151,7 @@ system(
 
 1. Import `admissions.csv.gz` as a tibble `admissions_tble`.
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 admissions_tble <- str_c(mimic_path, "/core/admissions.csv.gz") %>% 
   read_csv()
 ```
@@ -171,8 +160,8 @@ admissions_tble <- str_c(mimic_path, "/core/admissions.csv.gz") %>%
 2. Let's only keep the admissions that have a match in `icustays_tble` according to `subject_id` and `hadm_id`.
 
 ```{r}
-admissions_tble %>% 
-  semi_join(icustays_tble, by = c("subject_id", "hadm_id"))
+admissions_tble <- icustays_tble %>% 
+  semi_join(admissions_tble, by = c("subject_id", "hadm_id"))
 ```
 
 
@@ -217,7 +206,7 @@ system(
 
 1. Import `patients.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/core/patients/>) as a tibble `patients_tble` and only keep the patients who have a match in `icustays_tble` (according to `subject_id`).
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>% 
   read_csv() %>% 
   semi_join(icustays_tble, by = "subject_id")
@@ -283,17 +272,30 @@ system(
 
     Hint: `labevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer 5-10 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `labevents_filtered_itemid.csv.gz`.
     
-```{r}
+```{r, message = FALSE}
 labevents_tble <- str_c(mimic_path, "/hosp/labevents.csv.gz") %>% 
-  read_csv(col_select()) %>% 
-  filter(item_id %in% c("50971", "50983", "50902", "50882", 
-                        "51221", "51301", "50931"))
+  read_csv(col_select = c(subject_id, itemid, charttime, valuenum)) %>% 
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 
+                        50882, 51221, 51301, 50931)) %>% 
+  semi_join(icustays_tble, by = "subject_id")
+
 ```
 
 
 3. Further restrict `labevents_tble` to the first lab measurement during the ICU stay. 
 
+```{r}
+labevents_tble <- labevents_tble %>% 
+  group_by(subject_id, itemid) %>% 
+  arrange(charttime) %>% 
+  slice(1)
+
+labevents_tble
+```
+
 4. Summarize the lab measurements by appropriate numerics and graphics. 
+
+
 
 ## Q6. Vitals from charted events
 
@@ -321,10 +323,29 @@ system(
 1. We are interested in the vitals for ICU patients: heart rate (220045), mean non-invasive blood pressure (220181), systolic non-invasive blood pressure (220179), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of `chartevents.csv.gz` only containing these items for the patients in `icustays_tble` as a tibble `chartevents_tble`.
 
     Hint: `chartevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer >15 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `chartevents_filtered_itemid.csv.gz`.
+    
+```{r, message = FALSE}
+chartevents_tble <- str_c(mimic_path, "/icu/chartevents.csv.gz") %>% 
+  read_csv(col_select = c(subject_id, itemid, charttime, valuenum)) %>% 
+  filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
+  semi_join(icustays_tble, by = "subject_id")
+```
+
 
 2. Further restrict `chartevents_tble` to the first vital measurement during the ICU stay. 
 
+```{r}
+chartevents_tble <- chartevents_tble %>% 
+  group_by(subject_id, itemid) %>% 
+  arrange(charttime) %>% 
+  slice(1)
+
+chartevents_tble
+```
+
 3. Summarize these vital measurements by appropriate numerics and graphics. 
+
+
 
 ## Q7. Putting things together
 
@@ -336,6 +357,16 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are the 
 - first lab measurements during ICU stay  
 - first vital measurements during ICU stay
 - an indicator variable `thirty_day_mort` whether the patient died within 30 days of hospital admission (30 day mortality)
+
+```{r}
+mimic_icu_cohort <- list(icustays_tble, admissions_tble, patients_tble, 
+                         labevents_tble, chartevents_tble) %>% 
+  reduce(left_join, by = "subject_id") %>% 
+  filter(anchor_age > 18) %>% 
+  mutate(thirty_day_mort = if_else(!is.na(deathtime) & los< 30, 1, 0))
+  
+```
+
 
 ## Q8. Exploratory data analysis (EDA)
 
