@@ -97,6 +97,8 @@ system(
 ```{r, message = FALSE}
 icustays_tble <- str_c(mimic_path, "/icu/icustays.csv.gz") %>% 
   read_csv()
+
+icustays_tble
 ```
 
 
@@ -131,7 +133,10 @@ icustays_tble %>%
 icustays_tble <- icustays_tble %>% 
   group_by(subject_id) %>% 
   arrange(intime) %>% 
-  slice_head(n = 1)
+  slice_head(n = 1) %>% 
+  ungroup()
+
+icustays_tble
 ```
 
 
@@ -154,14 +159,18 @@ system(
 ```{r, message = FALSE}
 admissions_tble <- str_c(mimic_path, "/core/admissions.csv.gz") %>% 
   read_csv()
+
+admissions_tble
 ```
 
 
 2. Let's only keep the admissions that have a match in `icustays_tble` according to `subject_id` and `hadm_id`.
 
 ```{r}
-admissions_tble <- icustays_tble %>% 
-  semi_join(admissions_tble, by = c("subject_id", "hadm_id"))
+admissions_tble <- admissions_tble %>% 
+  semi_join(icustays_tble, by = c("subject_id", "hadm_id"))
+
+admissions_tble
 ```
 
 
@@ -177,15 +186,79 @@ admissions_tble <- icustays_tble %>%
     
 ```{r}
 admissions_tble %>% 
-  semi_join(icustays_tble, by = c("subject_id", "hadm_id")) %>% 
-  mutate(year = str_sub(as.character(admittime), start = 1, end = 4)) %>% 
+  mutate(year = year(admittime)) %>% 
   ggplot(aes(x = year)) +
   geom_bar() +
   labs(
     x = "Year",
     y = "Number of subject ids"
   ) +
-  coord_flip() +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(month = month(admittime)) %>% 
+  ggplot(aes(x = month)) +
+  geom_bar() +
+  labs(
+    x = "Month",
+    y = "Number of subject ids"
+  ) +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(monthday = mday(admittime)) %>% 
+  ggplot(aes(x = monthday)) +
+  geom_bar() +
+  labs(
+    x = "Month day",
+    y = "Number of subject ids"
+  ) +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(weekday = wday(admittime)) %>% 
+  ggplot(aes(x = weekday)) +
+  geom_bar() +
+  labs(
+    x = "Week day",
+    y = "Number of subject ids"
+  ) +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(hour = hour(admittime)) %>% 
+  ggplot(aes(x = hour)) +
+  geom_bar() +
+  labs(
+    x = "Hour",
+    y = "Number of subject ids"
+  ) +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(minute = minute(admittime)) %>% 
+  ggplot(aes(x = minute)) +
+  geom_bar() +
+  labs(
+    x = "Minute",
+    y = "Number of subject ids"
+  ) +
+  theme_classic()
+```
+```{r}
+admissions_tble %>% 
+  mutate(lengthstay = interval(admittime, dischtime)) %>% 
+  ggplot(aes(x = lengthstay)) +
+  geom_bar() +
+  labs(
+    x = "Length of hospital stay",
+    y = "Number of subject ids"
+  ) +
   theme_classic()
 ```
 
@@ -210,6 +283,8 @@ system(
 patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>% 
   read_csv() %>% 
   semi_join(icustays_tble, by = "subject_id")
+
+patients_tble
 ```
 
 
@@ -222,9 +297,11 @@ patients_tble %>%
   geom_bar() + 
   facet_wrap(~gender)
 ```
+
+
 ```{r}
 patients_tble %>% 
-  ggplot(aes(x = anchor_age)) +
+  ggplot(aes(x = gender)) +
   geom_bar()
 ```
 
@@ -273,14 +350,15 @@ system(
     Hint: `labevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer 5-10 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `labevents_filtered_itemid.csv.gz`.
     
 ```{r, message = FALSE}
-labevents_tble <- str_c(mimic_path, "/hosp/labevents.csv.gz") %>% 
-  read_csv(col_select = c(subject_id, itemid, charttime, valuenum)) %>% 
+labevents_tble <- str_c(mimic_path, "/hosp/labevents_filtered_itemid.csv.gz") %>% 
+  read_csv() %>% 
   filter(itemid %in% c(50912, 50971, 50983, 50902, 
                         50882, 51221, 51301, 50931)) %>% 
   semi_join(icustays_tble, by = "subject_id")
 
 ```
 
+I tried to load the data into my laptop, however, my R session aborted since it exceeded the memory limit (8G). Therefore, I loaded `labevents_filtered_itemid.csv.gz` here to save some memory space.
 
 3. Further restrict `labevents_tble` to the first lab measurement during the ICU stay. 
 
@@ -288,13 +366,35 @@ labevents_tble <- str_c(mimic_path, "/hosp/labevents.csv.gz") %>%
 labevents_tble <- labevents_tble %>% 
   group_by(subject_id, itemid) %>% 
   arrange(charttime) %>% 
-  slice(1)
+  slice(1) %>% 
+  ungroup()
 
 labevents_tble
 ```
 
 4. Summarize the lab measurements by appropriate numerics and graphics. 
 
+```{r}
+library(labelled)
+labevents_tble %>% 
+  ungroup() %>% 
+  set_value_labels(
+    itemid = c("creatinine" = 50912, "potassium" = 50971,
+               "sodium" = 50983, "chloride" = 50902,
+               "bicarbonate" = 50882, "hematocrit" = 51221,
+               "white blood cell count" = 51301, "glucose" = 50931)
+  ) %>% 
+  modify_if(is.labelled, to_factor) %>% 
+  group_by(itemid) %>% 
+  ggplot(aes(x = itemid, y = valuenum)) +
+  geom_boxplot(na.rm = T) +
+  labs(
+    x = "Lab measurements",
+    y = "Value"
+  ) +
+  coord_flip() +
+  theme_classic()
+```
 
 
 ## Q6. Vitals from charted events
@@ -325,8 +425,8 @@ system(
     Hint: `chartevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer >15 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `chartevents_filtered_itemid.csv.gz`.
     
 ```{r, message = FALSE}
-chartevents_tble <- str_c(mimic_path, "/icu/chartevents.csv.gz") %>% 
-  read_csv(col_select = c(subject_id, itemid, charttime, valuenum)) %>% 
+chartevents_tble <- str_c(mimic_path, "/icu/chartevents_filtered_itemid.csv.gz") %>% 
+  read_csv() %>% 
   filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
   semi_join(icustays_tble, by = "subject_id")
 ```
@@ -345,6 +445,9 @@ chartevents_tble
 
 3. Summarize these vital measurements by appropriate numerics and graphics. 
 
+```{r}
+
+```
 
 
 ## Q7. Putting things together
