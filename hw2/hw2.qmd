@@ -46,6 +46,7 @@ In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the [MIMIC-I
 Display the contents of MIMIC data folder. 
 ```{r}
 c("/", "/core", "/hosp", "/icu") %>% 
+  set_names() %>% 
   map(~str_c("ls -l ", mimic_path, .x) %>% 
         system(intern = TRUE)
       )
@@ -125,7 +126,7 @@ icustays_tble %>%
   geom_bar() +
   labs(
     x = "Number of ICU stays",
-    y = "Number of subject ids"
+    y = "Number of subjects"
   ) +
   theme_classic()
 ```
@@ -192,102 +193,47 @@ admissions_tble
     - length of hospital stay (anything unusual?)   
     
 ```{r}
-admissions_tble %>% 
-  mutate(year = year(admittime)) %>% 
-  ggplot(aes(x = year)) +
-  geom_bar() +
-  labs(
-    x = "Year",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
-```
+list(
+  list(year, month, mday, wday, hour, minute),
+  list("Year", "Month", "Month day", "Week day", "Hour", "Minute")
+  ) %>% 
+  pmap(~admissions_tble %>% 
+         ggplot(aes(x = admittime %>% 
+                      .x)) +
+         geom_bar() +
+         labs(
+           x = .y,
+           y = "Number of subjects") +
+         theme_classic())
 
-```{r}
-admissions_tble %>% 
-  mutate(month = month(admittime)) %>% 
-  ggplot(aes(x = month)) +
-  geom_bar() +
-  labs(
-    x = "Month",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
 ```
+It seems like patients are more likely to be admitted after 3 p.m. and reach peak at 12 a.m. There is also a regional peak around 7 a.m.
 
-```{r}
-admissions_tble %>% 
-  mutate(monthday = mday(admittime)) %>% 
-  ggplot(aes(x = monthday)) +
-  geom_bar() +
-  labs(
-    x = "Month day",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
-```
-```{r}
-admissions_tble %>% 
-  mutate(weekday = wday(admittime)) %>% 
-  ggplot(aes(x = weekday)) +
-  geom_bar() +
-  labs(
-    x = "Week day",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
-```
-
-```{r}
-admissions_tble %>% 
-  mutate(hour = hour(admittime)) %>% 
-  ggplot(aes(x = hour)) +
-  geom_bar() +
-  labs(
-    x = "Hour",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
-```
-It seems like patients are more likely to be admitted after 3 p.m. and \n 
-reach peak at 12 a.m. There is also a regional peak around 7 a.m.
-
-```{r}
-admissions_tble %>% 
-  mutate(minute = minute(admittime)) %>% 
-  ggplot(aes(x = minute)) +
-  geom_bar() +
-  labs(
-    x = "Minute",
-    y = "Number of subject ids"
-  ) +
-  theme_classic()
-```
 It seems like there is a recurring peak of patient admission every 14 minutes.
 
-
 ```{r, warning=FALSE}
-admissions_tble %>% 
+admissions_tble <- admissions_tble %>% 
   mutate(
     lengthstay = interval(
       ymd_hms(admittime), 
       ymd_hms(dischtime)
       ) %>% 
       as.duration()/3600/24
-    ) %>% 
+    ) 
+
+admissions_tble %>% 
   ggplot(aes(x = lengthstay)) +
   # geom_histogram(bins = 500) +
-  geom_bar(width = 1) + 
+  geom_bar(width = 3) + 
   labs(
     x = "Length of hospital stay (days)",
-    y = "Number of subject ids"
+    y = "Number of subjects"
   ) +
   theme_classic()
 
 ```
 
-Most patients will be discharged within 10 days, however, there are a few of \n 
-them stayed over 400 days.
+Most patients will be discharged within 10 days, however, there are a few of them stayed over 100 days.
     
 ## Q4. `patients` data
 
@@ -324,6 +270,10 @@ patients_tble %>%
   group_by(gender) %>% 
   ggplot(aes(x = anchor_age)) + 
   geom_bar() + 
+  labs(
+    x = "Age",
+    y = "Number of subjects"
+  ) +
   facet_wrap(~gender) + 
   theme_classic()
 ```
@@ -377,12 +327,21 @@ system(
     Hint: `labevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer 5-10 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `labevents_filtered_itemid.csv.gz`.
     
 ```{r, message = FALSE}
-labevents_tble <- str_c(mimic_path, "/hosp/labevents_filtered_itemid.csv.gz") %>% 
+labevents_tble <- 
+  str_c(
+    mimic_path, 
+    "/hosp/labevents_filtered_itemid.csv.gz"
+    ) %>% 
   read_csv() %>% 
   filter(itemid %in% c(50912, 50971, 50983, 50902, 
-                        50882, 51221, 51301, 50931)) %>% 
-  semi_join(icustays_tble, by = "subject_id")
-
+                       50882, 51221, 51301, 50931)
+         ) %>% 
+  semi_join(
+    icustays_tble, 
+    by = "subject_id"
+    )
+  
+labevents_tble
 ```
 
 I tried to load the data into my laptop, however, my R session aborted since it exceeded the memory limit (8G). Therefore, I loaded `labevents_filtered_itemid.csv.gz` here to save some memory space.
@@ -405,25 +364,31 @@ labevents_tble
 labevents_tble %>% 
   group_by(itemid) %>% 
   group_split() %>% 
-  map(~summary(.x$valuenum))
+  set_names("bicarbonate", "chloride", "creatinine", "glucose",
+            "potassium", "sodium", "hematocrit", "white blood cell count") %>% 
+  map(
+    ~summary(
+      .x %>% 
+        pull(valuenum)
+      )
+    )
+
 ```
 
 
 ```{r}
 labevents_tble %>% 
   set_value_labels(
-    itemid = c("creatinine" = 50912, "potassium" = 50971,
-               "sodium" = 50983, "chloride" = 50902,
-               "bicarbonate" = 50882, "hematocrit" = 51221,
-               "white blood cell count" = 51301, "glucose" = 50931)
-  ) %>% 
+    itemid = c("creatinine" = 50912, "potassium" = 50971, 
+                   "sodium" = 50983, "chloride" = 50902, 
+                   "bicarbonate" = 50882, "hematocrit" = 51221, 
+                   "white blood cell count" = 51301, "glucose" = 50931)
+    ) %>% 
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
   ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
-  geom_boxplot(outlier.color = "red", 
-               outlier.size = 0.5,
-               outlier.alpha = 0.5, 
-               na.rm = T) +
+  geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
+  scale_y_continuous(limits = c(0, 300))+
   labs(
     x = "Lab measurements",
     y = "Value",
@@ -465,7 +430,10 @@ system(
 chartevents_tble <- str_c(mimic_path, "/icu/chartevents_filtered_itemid.csv.gz") %>% 
   read_csv() %>% 
   filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
-  semi_join(icustays_tble, by = "subject_id")
+  semi_join(icustays_tble, by = c("subject_id", "hadm_id", "stay_id")) %>% 
+  select(-c(hadm_id, stay_id))
+
+chartevents_tble
 ```
 
 
@@ -486,29 +454,34 @@ chartevents_tble
 chartevents_tble %>% 
   group_by(itemid) %>% 
   group_split() %>% 
-  map(~summary(.x$valuenum))
+  set_names("heart rate", "systolic non-invasive blood pressure", 
+            "mean non-invasive blood pressure", "respiratory rate", 
+            "body temperature in Fahrenheit") %>% 
+  map(
+    ~summary(
+      .x %>% 
+        pull(valuenum)
+      )
+    )
 ```
 
 ```{r}
 chartevents_tble %>% 
   set_value_labels(
     itemid = c("heart rate" = 220045, 
-               "mean non-invasive blood pressure" = 220181,
-               "systolic non-invasive blood pressure" = 220179, 
-               "body temperature in Fahrenheit" = 223761,
-               "respiratory rate" = 220210)
-  ) %>% 
+                     "mean non-invasive blood pressure" = 220181, 
+                     "systolic non-invasive blood pressure" = 220179, 
+                     "body temperature in Fahrenheit" = 223761, 
+                     "respiratory rate" = 220210)
+    ) %>% 
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
   ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
-  geom_boxplot(outlier.color = "red", 
-               outlier.size = 0.5,
-               outlier.alpha = 0.5, 
-               na.rm = T) +
+  geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
+  scale_y_continuous(limits = c(0, 300))+
   labs(
     x = "Vital measurements",
-    y = "Value",
-    color = "Vital measurements "
+    y = "Value"
   ) +
   coord_flip() +
   theme_classic()
@@ -526,13 +499,30 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are the 
 - first vital measurements during ICU stay
 - an indicator variable `thirty_day_mort` whether the patient died within 30 days of hospital admission (30 day mortality)
 
-```{r}
-mimic_icu_cohort <- list(icustays_tble, admissions_tble, patients_tble, 
-                         labevents_tble, chartevents_tble) %>% 
+```{r, message=FALSE}
+list(labevents_tble, chartevents_tble) %>% 
+  map(function(data){
+    data %>% 
+      select(-charttime) %>% 
+      pivot_wider(
+        id_cols = subject_id, 
+        names_from = itemid, 
+        values_from = valuenum
+      )
+    }
+  ) %>% 
+  set_names("labevents_tble_wide", "chartevents_tble_wide") %>% 
+  list2env(envir = .GlobalEnv)
+
+
+mimic_icu_cohort <- list(icustays_tble, admissions_tble %>% select(-hadm_id), 
+                         patients_tble, labevents_tble_wide, 
+                         chartevents_tble_wide) %>% 
   reduce(left_join, by = "subject_id") %>% 
   filter(anchor_age > 18) %>% 
-  mutate(thirty_day_mort = if_else(!is.na(deathtime) & los< 30, 1, 0))
+  mutate(thirty_day_mort = if_else(!is.na(deathtime) & lengthstay <= 30, 1, 0))
   
+mimic_icu_cohort
 ```
 
 
@@ -547,3 +537,46 @@ Summarize following information using appropriate numerics or graphs.
 - `thirty_day_mort` vs first vital measurements
 
 - `thirty_day_mort` vs first ICU unit
+
+
+```{r}
+
+mimic_icu_cohort %>% 
+  select(thirty_day_mort, ethnicity, language, 
+         insurance, marital_status, gender, anchor_age)
+
+```
+
+
+```{r}
+list(
+  list("ethnicity", "language", "insurance", 
+       "marital_status", "gender"), 
+  list("Ethnicity", "Language", "Insurance", 
+       "Marital Status", "Gender")
+  ) %>% 
+  pmap(
+    function(data1, data2){
+      mimic_icu_cohort %>% 
+        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
+                                             "Didn't die within 30 days" = 0),
+                         gender = c("Male" = "M", "Female" = "F")
+                         ) %>% 
+        modify_if(is.labelled, to_factor) %>% 
+        select(thirty_day_mort, data1) %>% 
+        # mutate_at(vars(data1), str_to_title) %>%
+        ggplot(aes(x = thirty_day_mort, fill = .[, 2])) + 
+        geom_bar(position = "dodge") + 
+        labs(
+          x = "30 day mortality", 
+          y = "Number of subjects", 
+          fill = data2
+          ) + 
+        theme_classic()
+      }
+    )
+
+```
+
+
+
