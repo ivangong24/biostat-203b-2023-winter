@@ -31,6 +31,7 @@ Load necessary libraries (you can add more as needed).
 library(data.table)
 library(lubridate)
 library(R.utils)
+library(labelled)
 library(tidyverse)
 ```
 
@@ -116,7 +117,10 @@ There are 53150	unique `subject_id`. Yes, one `subject_id` can have multiple ICU
 ```{r}
 icustays_tble %>% 
   group_by(subject_id) %>% 
-  summarise(count = n(), .groups = "keep") %>% 
+  summarise(
+    count = n(), 
+    .groups = "keep"
+    ) %>% 
   ggplot(aes(x = count)) +
   geom_bar() +
   labs(
@@ -168,7 +172,10 @@ admissions_tble
 
 ```{r}
 admissions_tble <- admissions_tble %>% 
-  semi_join(icustays_tble, by = c("subject_id", "hadm_id"))
+  semi_join(
+    icustays_tble, 
+    by = c("subject_id", "hadm_id")
+    )
 
 admissions_tble
 ```
@@ -195,6 +202,7 @@ admissions_tble %>%
   ) +
   theme_classic()
 ```
+
 ```{r}
 admissions_tble %>% 
   mutate(month = month(admittime)) %>% 
@@ -206,6 +214,7 @@ admissions_tble %>%
   ) +
   theme_classic()
 ```
+
 ```{r}
 admissions_tble %>% 
   mutate(monthday = mday(admittime)) %>% 
@@ -228,6 +237,7 @@ admissions_tble %>%
   ) +
   theme_classic()
 ```
+
 ```{r}
 admissions_tble %>% 
   mutate(hour = hour(admittime)) %>% 
@@ -239,6 +249,9 @@ admissions_tble %>%
   ) +
   theme_classic()
 ```
+It seems like patients are more likely to be admitted after 3 p.m. and \n 
+reach peak at 12 a.m. There is also a regional peak around 7 a.m.
+
 ```{r}
 admissions_tble %>% 
   mutate(minute = minute(admittime)) %>% 
@@ -250,18 +263,31 @@ admissions_tble %>%
   ) +
   theme_classic()
 ```
-```{r}
+It seems like there is a recurring peak of patient admission every 14 minutes.
+
+
+```{r, warning=FALSE}
 admissions_tble %>% 
-  mutate(lengthstay = interval(admittime, dischtime)) %>% 
+  mutate(
+    lengthstay = interval(
+      ymd_hms(admittime), 
+      ymd_hms(dischtime)
+      ) %>% 
+      as.duration()/3600/24
+    ) %>% 
   ggplot(aes(x = lengthstay)) +
-  geom_bar() +
+  # geom_histogram(bins = 500) +
+  geom_bar(width = 1) + 
   labs(
-    x = "Length of hospital stay",
+    x = "Length of hospital stay (days)",
     y = "Number of subject ids"
   ) +
   theme_classic()
+
 ```
 
+Most patients will be discharged within 10 days, however, there are a few of \n 
+them stayed over 400 days.
     
 ## Q4. `patients` data
 
@@ -282,7 +308,10 @@ system(
 ```{r, message = FALSE}
 patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>% 
   read_csv() %>% 
-  semi_join(icustays_tble, by = "subject_id")
+  semi_join(
+    icustays_tble, 
+    by = "subject_id"
+    )
 
 patients_tble
 ```
@@ -295,15 +324,13 @@ patients_tble %>%
   group_by(gender) %>% 
   ggplot(aes(x = anchor_age)) + 
   geom_bar() + 
-  facet_wrap(~gender)
+  facet_wrap(~gender) + 
+  theme_classic()
 ```
+  - There are more males than females. 
+  - The age of most patients is between 50-80 in both males and females. 
+  - There are more patients in their 90s than any other age groups.
 
-
-```{r}
-patients_tble %>% 
-  ggplot(aes(x = gender)) +
-  geom_bar()
-```
 
 ## Q5. Lab results
 
@@ -375,9 +402,15 @@ labevents_tble
 4. Summarize the lab measurements by appropriate numerics and graphics. 
 
 ```{r}
-library(labelled)
 labevents_tble %>% 
-  ungroup() %>% 
+  group_by(itemid) %>% 
+  group_split() %>% 
+  map(~summary(.x$valuenum))
+```
+
+
+```{r}
+labevents_tble %>% 
   set_value_labels(
     itemid = c("creatinine" = 50912, "potassium" = 50971,
                "sodium" = 50983, "chloride" = 50902,
@@ -386,11 +419,15 @@ labevents_tble %>%
   ) %>% 
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
-  ggplot(aes(x = itemid, y = valuenum)) +
-  geom_boxplot(na.rm = T) +
+  ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
+  geom_boxplot(outlier.color = "red", 
+               outlier.size = 0.5,
+               outlier.alpha = 0.5, 
+               na.rm = T) +
   labs(
     x = "Lab measurements",
-    y = "Value"
+    y = "Value",
+    color = "Lab measurements "
   ) +
   coord_flip() +
   theme_classic()
@@ -446,7 +483,35 @@ chartevents_tble
 3. Summarize these vital measurements by appropriate numerics and graphics. 
 
 ```{r}
+chartevents_tble %>% 
+  group_by(itemid) %>% 
+  group_split() %>% 
+  map(~summary(.x$valuenum))
+```
 
+```{r}
+chartevents_tble %>% 
+  set_value_labels(
+    itemid = c("heart rate" = 220045, 
+               "mean non-invasive blood pressure" = 220181,
+               "systolic non-invasive blood pressure" = 220179, 
+               "body temperature in Fahrenheit" = 223761,
+               "respiratory rate" = 220210)
+  ) %>% 
+  modify_if(is.labelled, to_factor) %>% 
+  group_by(itemid) %>% 
+  ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
+  geom_boxplot(outlier.color = "red", 
+               outlier.size = 0.5,
+               outlier.alpha = 0.5, 
+               na.rm = T) +
+  labs(
+    x = "Vital measurements",
+    y = "Value",
+    color = "Vital measurements "
+  ) +
+  coord_flip() +
+  theme_classic()
 ```
 
 
