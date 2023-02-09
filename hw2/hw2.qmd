@@ -389,7 +389,8 @@ labevents_tble %>%
   group_by(itemid) %>% 
   ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
   geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
-  scale_y_continuous(limits = c(0, 300)) +
+  scale_y_continuous(limits = c(0, 300)) + 
+  scale_color_colorblind() + 
   labs(
     x = "Lab measurements",
     y = "Value",
@@ -398,6 +399,7 @@ labevents_tble %>%
   coord_flip() +
   theme_classic()
 ```
+I hide the outliers for each lab measurement and limit the `value` axis so that the boxplots would not gather together. 
 
 
 ## Q6. Vitals from charted events
@@ -444,7 +446,8 @@ chartevents_tble
 chartevents_tble <- chartevents_tble %>% 
   group_by(subject_id, itemid) %>% 
   arrange(charttime) %>% 
-  slice(1)
+  slice(1) %>% 
+  ungroup()
 
 chartevents_tble
 ```
@@ -478,8 +481,9 @@ chartevents_tble %>%
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
   ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
-  geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
-  scale_y_continuous(limits = c(0, 300))+
+  geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
+  scale_color_colorblind() + 
+  scale_y_continuous(limits = c(0, 200)) + 
   labs(
     x = "Vital measurements",
     y = "Value"
@@ -487,7 +491,7 @@ chartevents_tble %>%
   coord_flip() +
   theme_classic()
 ```
-
+Similar as Q6.4, the outliers were hidden and the limit of `value` axis was set to an arbitrary number in order to make the plot more readable.
 
 ## Q7. Putting things together
 
@@ -579,7 +583,7 @@ mimic_icu_cohort %>%
   modify_if(is.labelled, to_factor) %>% 
   mutate_if(is.character, str_to_title) %>% 
   ggplot(aes(x = thirty_day_mort, y = anchor_age, color = thirty_day_mort)) + 
-  geom_boxplot(show.legend = FALSE) + 
+  geom_boxplot(na.rm = T, show.legend = FALSE) + 
   scale_color_colorblind() +
   labs(
     x = "30 day mortality",
@@ -591,6 +595,15 @@ mimic_icu_cohort %>%
 
 ```{r}
 # `thirty_day_mort` vs first lab measurements
+
+#create a function to remove outliers
+dec_out_na <- function(x, thres = 3, na.rm = TRUE) {
+  sd <- sd(x, na.rm = na.rm)
+  mean <- mean(x, na.rm = na.rm)
+  id_out = x > mean + thres * sd | x < mean - thres * sd
+  x[id_out] = NA
+  return(x)
+}
 
 list(
   list("50882", "50902", "50912", "50931", "50971", "50983", "51221", "51301"), 
@@ -604,11 +617,11 @@ list(
                                              "Didn't die within 30 days" = 0)
                          ) %>% 
         modify_if(is.labelled, to_factor) %>% 
-        #select(thirty_day_mort, data1) %>% 
+        mutate_if(is.numeric, dec_out_na) %>% 
         mutate_if(is.character, str_to_title) %>%
         ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
                    color = thirty_day_mort)) + 
-        geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
+        geom_boxplot(na.rm = T, show.legend = FALSE) + 
         scale_color_colorblind() + 
         labs(
           x = "30 day mortality", 
@@ -618,6 +631,7 @@ list(
       }
     )
 ```
+I created a function to remove all extreme values in lab measurements so that the boxplots were more readable.
 
 
 ```{r}
@@ -635,11 +649,11 @@ list(
                                              "Didn't die within 30 days" = 0)
                          ) %>% 
         modify_if(is.labelled, to_factor) %>% 
-        #select(thirty_day_mort, data1) %>% 
-        mutate_if(is.character, str_to_title) %>%
+        mutate_if(is.numeric, dec_out_na) %>% 
+        filter(.data[[data1]] < 500) %>% 
         ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
                    color = thirty_day_mort)) + 
-        geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
+        geom_boxplot(na.rm = T, show.legend = FALSE) + 
         scale_color_colorblind() + 
         labs(
           x = "30 day mortality", 
@@ -649,6 +663,8 @@ list(
       }
     )
 ```
+
+For visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of "outliers" (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (500) to keep values that make biological sense.
 
 ```{r}
 mimic_icu_cohort %>% 
