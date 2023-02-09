@@ -223,8 +223,7 @@ admissions_tble <- admissions_tble %>%
 
 admissions_tble %>% 
   ggplot(aes(x = lengthstay)) +
-  # geom_histogram(bins = 500) +
-  geom_bar(width = 3) + 
+  geom_histogram(bins = 500) + 
   labs(
     x = "Length of hospital stay (days)",
     y = "Number of subjects"
@@ -233,7 +232,7 @@ admissions_tble %>%
 
 ```
 
-Most patients will be discharged within 10 days, however, there are a few of them stayed over 100 days.
+Most patients will be discharged within 20 days, however, there are a few of them stayed over 100 days.
     
 ## Q4. `patients` data
 
@@ -257,7 +256,8 @@ patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>%
   semi_join(
     icustays_tble, 
     by = "subject_id"
-    )
+    ) %>% 
+  set_value_labels(gender = c("Male" = "M", "Female" = "F"))
 
 patients_tble
 ```
@@ -267,6 +267,7 @@ patients_tble
 
 ```{r}
 patients_tble %>% 
+  # modify_if(is.labelled, to_factor) %>% 
   group_by(gender) %>% 
   ggplot(aes(x = anchor_age)) + 
   geom_bar() + 
@@ -540,18 +541,10 @@ Summarize following information using appropriate numerics or graphs.
 
 
 ```{r}
-
-mimic_icu_cohort %>% 
-  select(thirty_day_mort, ethnicity, language, 
-         insurance, marital_status, gender, anchor_age)
-
-```
-
-
-```{r}
 list(
-  list("ethnicity", "language", "insurance", 
-       "marital_status", "gender"), 
+  list("ethnicity", "language", 
+       "insurance", "marital_status", 
+       "gender"), 
   list("Ethnicity", "Language", "Insurance", 
        "Marital Status", "Gender")
   ) %>% 
@@ -559,18 +552,18 @@ list(
     function(data1, data2){
       mimic_icu_cohort %>% 
         set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                             "Didn't die within 30 days" = 0),
-                         gender = c("Male" = "M", "Female" = "F")
+                                             "Didn't die within 30 days" = 0)
                          ) %>% 
         modify_if(is.labelled, to_factor) %>% 
-        select(thirty_day_mort, data1) %>% 
-        # mutate_at(vars(data1), str_to_title) %>%
-        ggplot(aes(x = thirty_day_mort, fill = .[, 2])) + 
+        #select(thirty_day_mort, data1) %>% 
+        mutate_if(is.character, str_to_title) %>%
+        ggplot(aes(x = .data[[data1]], fill = thirty_day_mort)) + 
         geom_bar(position = "dodge") + 
+        color_palette(palette = "jco") + 
         labs(
-          x = "30 day mortality", 
+          x = data2,  
           y = "Number of subjects", 
-          fill = data2
+          fill = "30 day mortality"
           ) + 
         theme_classic()
       }
@@ -578,5 +571,22 @@ list(
 
 ```
 
+```{r}
+mimic_icu_cohort %>% 
+        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
+                                             "Didn't die within 30 days" = 0)
+                         ) %>% 
+        modify_if(is.labelled, to_factor) %>% 
+        #select(thirty_day_mort, data1) %>% 
+        mutate_if(is.character, str_to_title) %>%
+        ggplot(aes(x = anchor_age, y = thirty_day_mort)) + 
+        geom_boxplot() + 
+        # labs(
+        #   x = "30 day mortality",  
+        #   y = "Number of subjects", 
+        #   fill = data2
+        #   ) + 
+        theme_classic()
+```
 
 
