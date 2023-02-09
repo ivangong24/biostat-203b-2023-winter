@@ -32,6 +32,7 @@ library(data.table)
 library(lubridate)
 library(R.utils)
 library(labelled)
+library(ggthemes)
 library(tidyverse)
 ```
 
@@ -381,9 +382,9 @@ labevents_tble %>%
 labevents_tble %>% 
   set_value_labels(
     itemid = c("creatinine" = 50912, "potassium" = 50971, 
-                   "sodium" = 50983, "chloride" = 50902, 
-                   "bicarbonate" = 50882, "hematocrit" = 51221, 
-                   "white blood cell count" = 51301, "glucose" = 50931)
+               "sodium" = 50983, "chloride" = 50902, 
+               "bicarbonate" = 50882, "hematocrit" = 51221, 
+               "white blood cell count" = 51301, "glucose" = 50931)
     ) %>% 
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
@@ -470,10 +471,10 @@ chartevents_tble %>%
 chartevents_tble %>% 
   set_value_labels(
     itemid = c("heart rate" = 220045, 
-                     "mean non-invasive blood pressure" = 220181, 
-                     "systolic non-invasive blood pressure" = 220179, 
-                     "body temperature in Fahrenheit" = 223761, 
-                     "respiratory rate" = 220210)
+               "mean non-invasive blood pressure" = 220181, 
+               "systolic non-invasive blood pressure" = 220179, 
+               "body temperature in Fahrenheit" = 223761, 
+               "respiratory rate" = 220210)
     ) %>% 
   modify_if(is.labelled, to_factor) %>% 
   group_by(itemid) %>% 
@@ -541,6 +542,8 @@ Summarize following information using appropriate numerics or graphs.
 
 
 ```{r}
+# `thirty_day_mort` vs demographic variables
+
 list(
   list("ethnicity", "language", 
        "insurance", "marital_status", 
@@ -559,34 +562,111 @@ list(
         mutate_if(is.character, str_to_title) %>%
         ggplot(aes(x = .data[[data1]], fill = thirty_day_mort)) + 
         geom_bar(position = "dodge") + 
-        color_palette(palette = "jco") + 
+        scale_fill_colorblind() + 
         labs(
           x = data2,  
           y = "Number of subjects", 
           fill = "30 day mortality"
           ) + 
+        coord_flip() + 
         theme_classic()
       }
     )
 
+mimic_icu_cohort %>% 
+  set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
+                                       "Didn't die within 30 days" = 0)
+                   ) %>% 
+  modify_if(is.labelled, to_factor) %>% 
+  mutate_if(is.character, str_to_title) %>% 
+  ggplot(aes(x = thirty_day_mort, y = anchor_age, color = thirty_day_mort)) + 
+  geom_boxplot(show.legend = FALSE) + 
+  scale_color_colorblind() +
+  labs(
+    x = "30 day mortality",
+    y = "Age at admission"
+    ) +
+  theme_classic()
+
 ```
 
 ```{r}
-mimic_icu_cohort %>% 
+# `thirty_day_mort` vs first lab measurements
+
+list(
+  list("50882", "50902", "50912", "50931", "50971", "50983", "51221", "51301"), 
+  list("bicarbonate", "chloride", "creatinine", "glucose", 
+       "potassium", "sodium", "hematocrit", "white blood cell count")
+  ) %>% 
+  pmap(
+    function(data1, data2){
+      mimic_icu_cohort %>% 
         set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
                                              "Didn't die within 30 days" = 0)
                          ) %>% 
         modify_if(is.labelled, to_factor) %>% 
         #select(thirty_day_mort, data1) %>% 
         mutate_if(is.character, str_to_title) %>%
-        ggplot(aes(x = anchor_age, y = thirty_day_mort)) + 
-        geom_boxplot() + 
-        # labs(
-        #   x = "30 day mortality",  
-        #   y = "Number of subjects", 
-        #   fill = data2
-        #   ) + 
+        ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
+                   color = thirty_day_mort)) + 
+        geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
+        scale_color_colorblind() + 
+        labs(
+          x = "30 day mortality", 
+          y = data2
+          ) + 
         theme_classic()
+      }
+    )
 ```
 
+
+```{r}
+# `thirty_day_mort` vs first vital measurements
+list(
+  list("220045", "220181", "220179", "223761", "220210"), 
+  list("heart rate", "mean non-invasive blood pressure", 
+       "systolic non-invasive blood pressure", 
+       "body temperature in Fahrenheit", "respiratory rate")
+  ) %>% 
+  pmap(
+    function(data1, data2){
+      mimic_icu_cohort %>% 
+        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
+                                             "Didn't die within 30 days" = 0)
+                         ) %>% 
+        modify_if(is.labelled, to_factor) %>% 
+        #select(thirty_day_mort, data1) %>% 
+        mutate_if(is.character, str_to_title) %>%
+        ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
+                   color = thirty_day_mort)) + 
+        geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
+        scale_color_colorblind() + 
+        labs(
+          x = "30 day mortality", 
+          y = data2
+          ) + 
+        theme_classic()
+      }
+    )
+```
+
+```{r}
+mimic_icu_cohort %>% 
+  set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
+                                       "Didn't die within 30 days" = 0)
+                   ) %>% 
+  modify_if(is.labelled, to_factor) %>% 
+  mutate_if(is.character, str_to_title) %>%
+  ggplot(aes(x = first_careunit, fill = thirty_day_mort)) + 
+  geom_bar(position = "dodge") + 
+  scale_fill_colorblind() + 
+  labs(
+    x = "First ICU unit", 
+    y = "Number of subjects", 
+    fill = "30 day mortality"
+    ) + 
+  coord_flip() + 
+  theme_classic()
+```
 
