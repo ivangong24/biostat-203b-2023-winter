@@ -399,7 +399,7 @@ labevents_tble %>%
   coord_flip() +
   theme_classic()
 ```
-I hide the outliers for each lab measurement and limit the `value` axis so that the boxplots would not gather together. 
+I hid the outliers for each lab measurement and limit the `value` axis (300) so that the boxplots would not gather together. 
 
 
 ## Q6. Vitals from charted events
@@ -491,7 +491,7 @@ chartevents_tble %>%
   coord_flip() +
   theme_classic()
 ```
-Similar as Q6.4, the outliers were hidden and the limit of `value` axis was set to an arbitrary number in order to make the plot more readable.
+Similar as Q6.4, the outliers were hidden and the limit of `value` axis was set to an arbitrary number (200) in order to make the plot more readable.
 
 ## Q7. Putting things together
 
@@ -664,9 +664,10 @@ list(
     )
 ```
 
-For visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of "outliers" (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (500) to keep values that make biological sense.
+To visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of "outliers" (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (500) to keep values that make biological sense.
 
 ```{r}
+# `thirty_day_mort` vs first ICU unit
 mimic_icu_cohort %>% 
   set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
                                        "Didn't die within 30 days" = 0)
