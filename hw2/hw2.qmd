@@ -22,7 +22,6 @@ knitr:
 
 Display machine information for reproducibility:
 ```{r}
-#| eval: false
 sessionInfo()
 ```
 
@@ -390,7 +389,7 @@ labevents_tble %>%
   group_by(itemid) %>% 
   ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
   geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
-  scale_y_continuous(limits = c(0, 300))+
+  scale_y_continuous(limits = c(0, 300)) +
   labs(
     x = "Lab measurements",
     y = "Value",
