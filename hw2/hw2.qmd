@@ -137,11 +137,11 @@ icustays_tble %>%
 ```{r}
 icustays_tble <- icustays_tble %>% 
   group_by(subject_id) %>% 
-  arrange(intime) %>% 
+  arrange(intime, .by_group = TRUE) %>% 
   slice_head(n = 1) %>% 
-  ungroup()
+  ungroup() %>% 
+  print(width = Inf)
 
-icustays_tble
 ```
 
 
@@ -163,9 +163,9 @@ system(
 
 ```{r, message = FALSE}
 admissions_tble <- str_c(mimic_path, "/core/admissions.csv.gz") %>% 
-  read_csv()
+  read_csv() %>% 
+  print(width = Inf)
 
-admissions_tble
 ```
 
 
@@ -176,9 +176,10 @@ admissions_tble <- admissions_tble %>%
   semi_join(
     icustays_tble, 
     by = c("subject_id", "hadm_id")
-    )
+    ) %>% 
+  select(-hadm_id) %>% 
+  print(width = Inf)
 
-admissions_tble
 ```
 
 
@@ -257,9 +258,9 @@ patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>%
     icustays_tble, 
     by = "subject_id"
     ) %>% 
-  set_value_labels(gender = c("Male" = "M", "Female" = "F"))
+  set_value_labels(gender = c("Male" = "M", "Female" = "F")) %>% 
+  print(width = Inf)
 
-patients_tble
 ```
 
 
@@ -267,7 +268,6 @@ patients_tble
 
 ```{r}
 patients_tble %>% 
-  # modify_if(is.labelled, to_factor) %>% 
   group_by(gender) %>% 
   ggplot(aes(x = anchor_age)) + 
   geom_bar() + 
@@ -326,6 +326,19 @@ system(
 2. We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of `labevents.csv.gz` only containing these items for the patients in `icustays_tble` as a tibble `labevents_tble`. 
 
     Hint: `labevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer 5-10 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `labevents_filtered_itemid.csv.gz`.
+
+```{r, warning = FALSE}
+dlabitems_tble <- str_c(
+    mimic_path, 
+    "/hosp/d_labitems.csv.gz"
+    ) %>% 
+  read_csv() %>% 
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 
+                       50882, 51221, 51301, 50931)
+         ) %>% 
+  print(width = Inf)
+```
+
     
 ```{r, message = FALSE}
 labevents_tble <- 
@@ -334,15 +347,13 @@ labevents_tble <-
     "/hosp/labevents_filtered_itemid.csv.gz"
     ) %>% 
   read_csv() %>% 
-  filter(itemid %in% c(50912, 50971, 50983, 50902, 
-                       50882, 51221, 51301, 50931)
-         ) %>% 
+  filter(itemid %in% dlabitems_tble$itemid) %>% 
   semi_join(
     icustays_tble, 
     by = "subject_id"
-    )
+    ) %>% 
+  print(width = Inf)
   
-labevents_tble
 ```
 
 I tried to load the data into my laptop, however, my R session aborted since it exceeded the memory limit (8G). Therefore, I loaded `labevents_filtered_itemid.csv.gz` here to save some memory space.
@@ -351,12 +362,20 @@ I tried to load the data into my laptop, however, my R session aborted since it 
 
 ```{r}
 labevents_tble <- labevents_tble %>% 
+  left_join(icustays_tble %>% 
+              select(subject_id, intime, outtime), 
+            by = "subject_id") %>% 
+  filter(charttime >= intime & charttime <= outtime) %>% 
   group_by(subject_id, itemid) %>% 
-  arrange(charttime) %>% 
-  slice(1) %>% 
+  arrange(charttime, .by_group = TRUE) %>% 
+  slice_head(n = 1) %>% 
+  select(-c(intime, outtime, charttime)) %>% 
   ungroup()
+  
+rename_at(vars(as.character(dlabitems_tble$item)), ~str_to_lower(dlabitems_tble$label)) # also change white blood cell
 
 labevents_tble
+
 ```
 
 4. Summarize the lab measurements by appropriate numerics and graphics. 
