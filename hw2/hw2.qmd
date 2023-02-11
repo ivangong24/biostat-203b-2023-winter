@@ -26,14 +26,15 @@ sessionInfo()
 ```
 
 Load necessary libraries (you can add more as needed).
+
 ```{r setup, message = FALSE}
 library(data.table)
 library(lubridate)
 library(R.utils)
-library(labelled)
 library(ggthemes)
 library(tidyverse)
 ```
+
 
 MIMIC data location
 ```{r}
@@ -62,20 +63,19 @@ Which function is fastest? Is there difference in the (default) parsed data type
 For later questions, we stick to the `read_csv` in tidyverse.
 
 ```{r, message = FALSE}
-list(read.csv, read_csv, fread) %>% 
-  map(
-    ~str_c(mimic_path, "/core", "/admissions.csv.gz") %>% 
-      . %>% 
-      system.time
-    ) 
 
 list(read.csv, read_csv, fread) %>% 
   map(
-    ~str_c(mimic_path, "/core", "/admissions.csv.gz") %>% 
-      . %>% 
-      map(class)
-    ) 
-  
+    ~system.time(
+      str_c(mimic_path, "/core", "/admissions.csv.gz") %>% 
+        . %>% 
+        map(class) %>% 
+        as_tibble() %>% 
+        t() %>%
+        print()
+      )
+    ) %>% 
+  set_names("read.csv", "read_csv", "fread")
 ```
 It seems like `fread` is the fastest way to read a compressed csv file.
 The default data types are different between the three methods. In `read.csv` and `fread`, all numeric variables were classified as integer, while they remained numeric in `read_csv`. All date variables were classified as character in `read.csv`, while they remained as date format in `read_csv` and `fread`.
@@ -98,9 +98,9 @@ system(
 
 ```{r, message = FALSE}
 icustays_tble <- str_c(mimic_path, "/icu/icustays.csv.gz") %>% 
-  read_csv()
+  read_csv() %>% 
+  print(width = Inf)
 
-icustays_tble
 ```
 
 
@@ -258,7 +258,12 @@ patients_tble <- str_c(mimic_path, "/core/patients.csv.gz") %>%
     icustays_tble, 
     by = "subject_id"
     ) %>% 
-  set_value_labels(gender = c("Male" = "M", "Female" = "F")) %>% 
+  mutate(
+    gender = case_when(gender == "F" ~ "Female", 
+                       gender == "M" ~ "Male", 
+                       TRUE ~ gender
+                       )
+    ) %>% 
   print(width = Inf)
 
 ```
@@ -327,7 +332,7 @@ system(
 
     Hint: `labevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer 5-10 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `labevents_filtered_itemid.csv.gz`.
 
-```{r, warning = FALSE}
+```{r, message = FALSE}
 dlabitems_tble <- str_c(
     mimic_path, 
     "/hosp/d_labitems.csv.gz"
@@ -356,9 +361,11 @@ labevents_tble <-
   
 ```
 
+
 I tried to load the data into my laptop, however, my R session aborted since it exceeded the memory limit (8G). Therefore, I loaded `labevents_filtered_itemid.csv.gz` here to save some memory space.
 
 3. Further restrict `labevents_tble` to the first lab measurement during the ICU stay. 
+
 
 ```{r}
 labevents_tble <- labevents_tble %>% 
@@ -370,43 +377,45 @@ labevents_tble <- labevents_tble %>%
   arrange(charttime, .by_group = TRUE) %>% 
   slice_head(n = 1) %>% 
   select(-c(intime, outtime, charttime)) %>% 
-  ungroup()
-  
-rename_at(vars(as.character(dlabitems_tble$item)), ~str_to_lower(dlabitems_tble$label)) # also change white blood cell
-
-labevents_tble
-
+  ungroup() %>% 
+  pivot_wider(
+    id_cols = subject_id, 
+    names_from = itemid,
+    values_from = valuenum
+  ) %>% 
+  rename_at(
+    vars(dlabitems_tble %>% 
+           pull(itemid) %>% 
+           as.character()
+         ), 
+    ~dlabitems_tble %>% 
+      pull(label) %>% 
+      str_to_lower() %>% 
+      str_replace_all(" ","_")
+    ) %>% 
+  print(width = Inf)
 ```
 
 4. Summarize the lab measurements by appropriate numerics and graphics. 
 
 ```{r}
 labevents_tble %>% 
-  group_by(itemid) %>% 
-  group_split() %>% 
-  set_names("bicarbonate", "chloride", "creatinine", "glucose",
-            "potassium", "sodium", "hematocrit", "white blood cell count") %>% 
-  map(
-    ~summary(
-      .x %>% 
-        pull(valuenum)
-      )
-    )
+  select(-subject_id) %>% 
+  map(summary) %>% 
+  bind_rows(.id = "id")
 
 ```
 
 
 ```{r}
 labevents_tble %>% 
-  set_value_labels(
-    itemid = c("creatinine" = 50912, "potassium" = 50971, 
-               "sodium" = 50983, "chloride" = 50902, 
-               "bicarbonate" = 50882, "hematocrit" = 51221, 
-               "white blood cell count" = 51301, "glucose" = 50931)
-    ) %>% 
-  modify_if(is.labelled, to_factor) %>% 
-  group_by(itemid) %>% 
-  ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
+  pivot_longer(
+    cols = !subject_id,
+    names_to = "lab_measure",
+    values_to = "value"
+  ) %>% 
+  group_by(lab_measure) %>% 
+  ggplot(aes(x = lab_measure, y = value, color = lab_measure)) +
   geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) +
   scale_y_continuous(limits = c(0, 300)) + 
   scale_color_colorblind() + 
@@ -448,14 +457,29 @@ system(
 
     Hint: `chartevents.csv.gz` is a data file too big to be read in by the `read_csv` function in its default setting. Utilize the `col_select` option in the `read_csv` function to reduce the memory burden. It took my computer >15 minutes to ingest this file. If your computer really has trouble importing `labevents.csv.gz`, you can import from the reduced data file `chartevents_filtered_itemid.csv.gz`.
     
+    
 ```{r, message = FALSE}
-chartevents_tble <- str_c(mimic_path, "/icu/chartevents_filtered_itemid.csv.gz") %>% 
+dchartitems_tble <- str_c(mimic_path, "/icu/d_items.csv.gz") %>% 
   read_csv() %>% 
   filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
-  semi_join(icustays_tble, by = c("subject_id", "hadm_id", "stay_id")) %>% 
-  select(-c(hadm_id, stay_id))
+  print(width = Inf)
+```
+ 
+    
+```{r, message = FALSE}
+chartevents_tble <- 
+  str_c(
+    mimic_path, 
+    "/icu/chartevents_filtered_itemid.csv.gz") %>% 
+  read_csv() %>% 
+  filter(itemid %in% dchartitems_tble$itemid) %>% 
+  semi_join(
+    icustays_tble, 
+    by = c("subject_id", "hadm_id", "stay_id")
+    ) %>% 
+  select(-c(hadm_id, stay_id)) %>% 
+  print(width = Inf)
 
-chartevents_tble
 ```
 
 
@@ -463,43 +487,52 @@ chartevents_tble
 
 ```{r}
 chartevents_tble <- chartevents_tble %>% 
+  left_join(icustays_tble %>% 
+              select(subject_id, intime, outtime), 
+            by = "subject_id") %>% 
+  filter(charttime >= intime & charttime <= outtime) %>% 
   group_by(subject_id, itemid) %>% 
-  arrange(charttime) %>% 
-  slice(1) %>% 
-  ungroup()
+  arrange(charttime, .by_group = TRUE) %>% 
+  slice_head(n = 1) %>% 
+  select(-c(intime, outtime, charttime)) %>% 
+  ungroup() %>% 
+  pivot_wider(
+    id_cols = subject_id, 
+    names_from = itemid,
+    values_from = valuenum
+  ) %>% 
+  rename_at(
+    vars(dchartitems_tble %>% 
+           pull(itemid) %>% 
+           as.character()
+         ), 
+    ~dchartitems_tble %>% 
+      pull(label) %>% 
+      str_to_lower() %>% 
+      str_replace_all(" ","_")
+    ) %>% 
+  print(width = Inf)
 
-chartevents_tble
 ```
 
 3. Summarize these vital measurements by appropriate numerics and graphics. 
 
 ```{r}
 chartevents_tble %>% 
-  group_by(itemid) %>% 
-  group_split() %>% 
-  set_names("heart rate", "systolic non-invasive blood pressure", 
-            "mean non-invasive blood pressure", "respiratory rate", 
-            "body temperature in Fahrenheit") %>% 
-  map(
-    ~summary(
-      .x %>% 
-        pull(valuenum)
-      )
-    )
+  select(-subject_id) %>% 
+  map(summary) %>% 
+  bind_rows(.id = "id")
 ```
 
 ```{r}
 chartevents_tble %>% 
-  set_value_labels(
-    itemid = c("heart rate" = 220045, 
-               "mean non-invasive blood pressure" = 220181, 
-               "systolic non-invasive blood pressure" = 220179, 
-               "body temperature in Fahrenheit" = 223761, 
-               "respiratory rate" = 220210)
+  pivot_longer(
+    cols = !subject_id,
+    names_to = "vital_measure",
+    values_to = "value"
     ) %>% 
-  modify_if(is.labelled, to_factor) %>% 
-  group_by(itemid) %>% 
-  ggplot(aes(x = itemid, y = valuenum, color = itemid)) +
+  group_by(vital_measure) %>% 
+  ggplot(aes(x = vital_measure, y = value, color = vital_measure)) +
   geom_boxplot(outlier.shape = NA, na.rm = T, show.legend = FALSE) + 
   scale_color_colorblind() + 
   scale_y_continuous(limits = c(0, 200)) + 
@@ -509,6 +542,7 @@ chartevents_tble %>%
   ) +
   coord_flip() +
   theme_classic()
+
 ```
 Similar as Q6.4, the outliers were hidden and the limit of `value` axis was set to an arbitrary number (200) in order to make the plot more readable.
 
@@ -524,29 +558,16 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are the 
 - an indicator variable `thirty_day_mort` whether the patient died within 30 days of hospital admission (30 day mortality)
 
 ```{r, message=FALSE}
-list(labevents_tble, chartevents_tble) %>% 
-  map(function(data){
-    data %>% 
-      select(-charttime) %>% 
-      pivot_wider(
-        id_cols = subject_id, 
-        names_from = itemid, 
-        values_from = valuenum
-      )
-    }
-  ) %>% 
-  set_names("labevents_tble_wide", "chartevents_tble_wide") %>% 
-  list2env(envir = .GlobalEnv)
 
+mimic_icu_cohort <- list(icustays_tble, admissions_tble, 
+                         patients_tble, labevents_tble, 
+                         chartevents_tble) %>% 
+  reduce(left_join, by = "subject_id") %>% #apply left_join multiple times to the given list
+  filter(anchor_age > 18) %>% #limit to age > 18
+  mutate(thirty_day_mort = if_else(!is.na(deathtime) & lengthstay <= 30, "Died within 30 days", "Didn't die within 30 days")) %>% #create indicator variable
+  mutate_if(is.character, str_to_title) %>% #change all strings to title style
+  mutate_at(vars(thirty_day_mort), fct_rev) #revert factor level
 
-mimic_icu_cohort <- list(icustays_tble, admissions_tble %>% select(-hadm_id), 
-                         patients_tble, labevents_tble_wide, 
-                         chartevents_tble_wide) %>% 
-  reduce(left_join, by = "subject_id") %>% 
-  filter(anchor_age > 18) %>% 
-  mutate(thirty_day_mort = if_else(!is.na(deathtime) & lengthstay <= 30, 1, 0))
-  
-mimic_icu_cohort
 ```
 
 
@@ -566,42 +587,37 @@ Summarize following information using appropriate numerics or graphs.
 ```{r}
 # `thirty_day_mort` vs demographic variables
 
-list(
-  list("ethnicity", "language", 
-       "insurance", "marital_status", 
-       "gender"), 
-  list("Ethnicity", "Language", "Insurance", 
-       "Marital Status", "Gender")
-  ) %>% 
-  pmap(
-    function(data1, data2){
-      mimic_icu_cohort %>% 
-        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                             "Didn't die within 30 days" = 0)
-                         ) %>% 
-        modify_if(is.labelled, to_factor) %>% 
-        #select(thirty_day_mort, data1) %>% 
-        mutate_if(is.character, str_to_title) %>%
-        ggplot(aes(x = .data[[data1]], fill = thirty_day_mort)) + 
-        geom_bar(position = "dodge") + 
-        scale_fill_colorblind() + 
-        labs(
-          x = data2,  
-          y = "Number of subjects", 
-          fill = "30 day mortality"
-          ) + 
-        coord_flip() + 
-        theme_classic()
-      }
-    )
+# iteration of ggplots (categorical variables)
+list("ethnicity", "language", "insurance", 
+     "marital_status", "gender") %>% 
+  map(
+    ~mimic_icu_cohort %>% 
+      ggplot(
+        aes(
+          x = .data[[.x]], 
+          fill = thirty_day_mort
+          )
+        ) + 
+      geom_bar(position = "dodge") + 
+      scale_fill_colorblind() + 
+      labs(
+        x = .x,  
+        y = "Number of subjects", 
+        fill = "30 day mortality"
+        ) + 
+      coord_flip() + 
+      theme_classic()
+      )
 
+# ggplot of numeric variable (age at admission)
 mimic_icu_cohort %>% 
-  set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                       "Didn't die within 30 days" = 0)
-                   ) %>% 
-  modify_if(is.labelled, to_factor) %>% 
-  mutate_if(is.character, str_to_title) %>% 
-  ggplot(aes(x = thirty_day_mort, y = anchor_age, color = thirty_day_mort)) + 
+  ggplot(
+    aes(
+      x = thirty_day_mort, 
+      y = anchor_age, 
+      color = thirty_day_mort
+      )
+    ) + 
   geom_boxplot(na.rm = T, show.legend = FALSE) + 
   scale_color_colorblind() +
   labs(
@@ -624,75 +640,66 @@ dec_out_na <- function(x, thres = 3, na.rm = TRUE) {
   return(x)
 }
 
-list(
-  list("50882", "50902", "50912", "50931", "50971", "50983", "51221", "51301"), 
-  list("bicarbonate", "chloride", "creatinine", "glucose", 
-       "potassium", "sodium", "hematocrit", "white blood cell count")
-  ) %>% 
-  pmap(
-    function(data1, data2){
-      mimic_icu_cohort %>% 
-        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                             "Didn't die within 30 days" = 0)
-                         ) %>% 
-        modify_if(is.labelled, to_factor) %>% 
-        mutate_if(is.numeric, dec_out_na) %>% 
-        mutate_if(is.character, str_to_title) %>%
-        ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
-                   color = thirty_day_mort)) + 
+dlabitems_tble %>% 
+  pull(label) %>% 
+  str_to_lower() %>% 
+  str_replace_all(" ", "_") %>% 
+  map(
+    ~mimic_icu_cohort %>% 
+      mutate_if(is.numeric, dec_out_na) %>% 
+      ggplot(
+        aes(
+          x = thirty_day_mort, 
+          y = .data[[.x]], 
+          color = thirty_day_mort
+          )
+        ) + 
         geom_boxplot(na.rm = T, show.legend = FALSE) + 
         scale_color_colorblind() + 
         labs(
           x = "30 day mortality", 
-          y = data2
+          y = .x
           ) + 
         theme_classic()
-      }
     )
+
 ```
 I created a function to remove all extreme values in lab measurements so that the boxplots were more readable.
 
 
 ```{r}
 # `thirty_day_mort` vs first vital measurements
-list(
-  list("220045", "220181", "220179", "223761", "220210"), 
-  list("heart rate", "mean non-invasive blood pressure", 
-       "systolic non-invasive blood pressure", 
-       "body temperature in Fahrenheit", "respiratory rate")
-  ) %>% 
-  pmap(
-    function(data1, data2){
-      mimic_icu_cohort %>% 
-        set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                             "Didn't die within 30 days" = 0)
-                         ) %>% 
-        modify_if(is.labelled, to_factor) %>% 
-        mutate_if(is.numeric, dec_out_na) %>% 
-        filter(.data[[data1]] < 500) %>% 
-        ggplot(aes(x = thirty_day_mort, y = .data[[data1]], 
-                   color = thirty_day_mort)) + 
-        geom_boxplot(na.rm = T, show.legend = FALSE) + 
-        scale_color_colorblind() + 
-        labs(
-          x = "30 day mortality", 
-          y = data2
-          ) + 
-        theme_classic()
-      }
+dchartitems_tble %>% 
+  pull(label) %>% 
+  str_to_lower() %>% 
+  str_replace_all(" ", "_") %>% 
+  map(
+    ~mimic_icu_cohort %>% 
+      mutate_if(is.numeric, dec_out_na) %>% 
+      filter(.data[[.x]] < 300) %>%
+      ggplot(
+        aes(
+          x = thirty_day_mort, 
+          y = .data[[.x]], 
+          color = thirty_day_mort
+          )
+        ) + 
+      geom_boxplot(na.rm = T, show.legend = FALSE) + 
+      scale_color_colorblind() + 
+      labs(
+        x = "30 day mortality", 
+        y = .x
+        ) + 
+      theme_classic()
     )
+
 ```
 
-To visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of "outliers" (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (500) to keep values that make biological sense.
+To visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of "outliers" (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (300) to keep values that make biological sense.
 
 ```{r}
 # `thirty_day_mort` vs first ICU unit
 mimic_icu_cohort %>% 
-  set_value_labels(thirty_day_mort = c("Died within 30 days" = 1, 
-                                       "Didn't die within 30 days" = 0)
-                   ) %>% 
-  modify_if(is.labelled, to_factor) %>% 
-  mutate_if(is.character, str_to_title) %>%
   ggplot(aes(x = first_careunit, fill = thirty_day_mort)) + 
   geom_bar(position = "dodge") + 
   scale_fill_colorblind() + 
