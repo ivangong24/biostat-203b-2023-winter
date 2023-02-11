@@ -212,7 +212,7 @@ It seems like patients are more likely to be admitted after 3 p.m. and reach pea
 
 It seems like there is a recurring peak of patient admission every 14 minutes.
 
-```{r, warning=FALSE}
+```{r, warning = FALSE}
 admissions_tble <- admissions_tble %>% 
   mutate(
     lengthstay = interval(

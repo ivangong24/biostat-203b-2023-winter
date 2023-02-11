@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.313">
+<meta name="generator" content="quarto-1.2.329">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -159,12 +159,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.2.2 (2022-10-31)
-Platform: x86_64-apple-darwin17.0 (64-bit)
-Running under: macOS Big Sur ... 10.16
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Ventura 13.2
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -201,55 +201,55 @@ loaded via a namespace (and not attached):
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$`/`
-[1] "total 40"                                                             
-[2] "-rw-rw-r--@ 1 ivan  staff  2518 Mar 10  2021 LICENSE.txt"             
-[3] "drwxr-xr-x@ 0 ivan  staff     0 Jan 13 14:47 MIMIC-reduce-chartevents"
-[4] "-rw-rw-r--@ 1 ivan  staff  2459 Mar 16  2021 SHA256SUMS.txt"          
-[5] "drwxr-xr-x@ 0 ivan  staff     0 Jan 13 14:47 core"                    
-[6] "drwxr-xr-x@ 0 ivan  staff  4096 Jan 13 14:47 hosp"                    
-[7] "drwxr-xr-x@ 0 ivan  staff  4096 Jan 13 14:47 icu"                     
-[8] "-rw-rw-r--@ 1 ivan  staff   797 Jan  4  2022 index.html"              
+[1] "total 40"                                                                  
+[2] "-rw-rw-r--@ 1 yufangong  staff  2518 Mar 10  2021 LICENSE.txt"             
+[3] "drwxr-xr-x@ 0 yufangong  staff     0 Jan 13 14:47 MIMIC-reduce-chartevents"
+[4] "-rw-rw-r--@ 1 yufangong  staff  2459 Mar 16  2021 SHA256SUMS.txt"          
+[5] "drwxr-xr-x@ 0 yufangong  staff     0 Jan 13 14:47 core"                    
+[6] "drwxr-xr-x@ 0 yufangong  staff  4096 Jan 13 14:47 hosp"                    
+[7] "drwxr-xr-x@ 0 yufangong  staff  4096 Jan 13 14:47 icu"                     
+[8] "-rw-rw-r--@ 1 yufangong  staff   797 Jan  4  2022 index.html"              
 
 $`/core`
-[1] "total 142944"                                                      
-[2] "-rw-rw-r--@ 1 ivan  staff  17208966 Mar 15  2021 admissions.csv.gz"
-[3] "-rw-rw-r--@ 1 ivan  staff       606 Jan  4  2022 index.html"       
-[4] "-rw-rw-r--@ 1 ivan  staff   2955582 Mar 15  2021 patients.csv.gz"  
-[5] "-rw-rw-r--@ 1 ivan  staff  53014503 Mar 15  2021 transfers.csv.gz" 
+[1] "total 142944"                                                           
+[2] "-rw-rw-r--@ 1 yufangong  staff  17208966 Mar 15  2021 admissions.csv.gz"
+[3] "-rw-rw-r--@ 1 yufangong  staff       606 Jan  4  2022 index.html"       
+[4] "-rw-rw-r--@ 1 yufangong  staff   2955582 Mar 15  2021 patients.csv.gz"  
+[5] "-rw-rw-r--@ 1 yufangong  staff  53014503 Mar 15  2021 transfers.csv.gz" 
 
 $`/hosp`
- [1] "total 9243184"                                                                      
- [2] "-rw-rw-r--@ 1 ivan  staff      430049 Mar 15  2021 d_hcpcs.csv.gz"                  
- [3] "-rw-rw-r--@ 1 ivan  staff      863239 Mar 15  2021 d_icd_diagnoses.csv.gz"          
- [4] "-rw-rw-r--@ 1 ivan  staff      579998 Mar 15  2021 d_icd_procedures.csv.gz"         
- [5] "-rw-rw-r--@ 1 ivan  staff       14898 Mar 15  2021 d_labitems.csv.gz"               
- [6] "-rw-rw-r--@ 1 ivan  staff    29531152 Mar 15  2021 diagnoses_icd.csv.gz"            
- [7] "-rw-rw-r--@ 1 ivan  staff    11684062 Mar 15  2021 drgcodes.csv.gz"                 
- [8] "-rw-rw-r--@ 1 ivan  staff   515763427 Mar 15  2021 emar.csv.gz"                     
- [9] "-rw-rw-r--@ 1 ivan  staff   476252563 Mar 15  2021 emar_detail.csv.gz"              
-[10] "-rw-rw-r--@ 1 ivan  staff     2098831 Mar 15  2021 hcpcsevents.csv.gz"              
-[11] "-rw-rw-r--@ 1 ivan  staff        2325 Jan  4  2022 index.html"                      
-[12] "-rw-rw-r--@ 1 ivan  staff  2091865786 Mar 15  2021 labevents.csv.gz"                
-[13] "-rw-rw-r--@ 1 ivan  staff   171624288 Jan 27  2022 labevents_filtered_itemid.csv.gz"
-[14] "-rw-rw-r--@ 1 ivan  staff    99133381 Mar 15  2021 microbiologyevents.csv.gz"       
-[15] "-rw-rw-r--@ 1 ivan  staff   422874088 Mar 15  2021 pharmacy.csv.gz"                 
-[16] "-rw-rw-r--@ 1 ivan  staff   501381155 Mar 15  2021 poe.csv.gz"                      
-[17] "-rw-rw-r--@ 1 ivan  staff    24020923 Mar 15  2021 poe_detail.csv.gz"               
-[18] "-rw-rw-r--@ 1 ivan  staff   367041717 Mar 15  2021 prescriptions.csv.gz"            
-[19] "-rw-rw-r--@ 1 ivan  staff     7750325 Mar 15  2021 procedures_icd.csv.gz"           
-[20] "-rw-rw-r--@ 1 ivan  staff     9565293 Mar 15  2021 services.csv.gz"                 
+ [1] "total 9243184"                                                                           
+ [2] "-rw-rw-r--@ 1 yufangong  staff      430049 Mar 15  2021 d_hcpcs.csv.gz"                  
+ [3] "-rw-rw-r--@ 1 yufangong  staff      863239 Mar 15  2021 d_icd_diagnoses.csv.gz"          
+ [4] "-rw-rw-r--@ 1 yufangong  staff      579998 Mar 15  2021 d_icd_procedures.csv.gz"         
+ [5] "-rw-rw-r--@ 1 yufangong  staff       14898 Mar 15  2021 d_labitems.csv.gz"               
+ [6] "-rw-rw-r--@ 1 yufangong  staff    29531152 Mar 15  2021 diagnoses_icd.csv.gz"            
+ [7] "-rw-rw-r--@ 1 yufangong  staff    11684062 Mar 15  2021 drgcodes.csv.gz"                 
+ [8] "-rw-rw-r--@ 1 yufangong  staff   515763427 Mar 15  2021 emar.csv.gz"                     
+ [9] "-rw-rw-r--@ 1 yufangong  staff   476252563 Mar 15  2021 emar_detail.csv.gz"              
+[10] "-rw-rw-r--@ 1 yufangong  staff     2098831 Mar 15  2021 hcpcsevents.csv.gz"              
+[11] "-rw-rw-r--@ 1 yufangong  staff        2325 Jan  4  2022 index.html"                      
+[12] "-rw-rw-r--@ 1 yufangong  staff  2091865786 Mar 15  2021 labevents.csv.gz"                
+[13] "-rw-rw-r--@ 1 yufangong  staff   171624288 Jan 27  2022 labevents_filtered_itemid.csv.gz"
+[14] "-rw-rw-r--@ 1 yufangong  staff    99133381 Mar 15  2021 microbiologyevents.csv.gz"       
+[15] "-rw-rw-r--@ 1 yufangong  staff   422874088 Mar 15  2021 pharmacy.csv.gz"                 
+[16] "-rw-rw-r--@ 1 yufangong  staff   501381155 Mar 15  2021 poe.csv.gz"                      
+[17] "-rw-rw-r--@ 1 yufangong  staff    24020923 Mar 15  2021 poe_detail.csv.gz"               
+[18] "-rw-rw-r--@ 1 yufangong  staff   367041717 Mar 15  2021 prescriptions.csv.gz"            
+[19] "-rw-rw-r--@ 1 yufangong  staff     7750325 Mar 15  2021 procedures_icd.csv.gz"           
+[20] "-rw-rw-r--@ 1 yufangong  staff     9565293 Mar 15  2021 services.csv.gz"                 
 
 $`/icu`
- [1] "total 5698008"                                                                        
- [2] "-rw-rw-r--@ 1 ivan  staff  2350783547 Mar 15  2021 chartevents.csv.gz"                
- [3] "-rw-rw-r--@ 1 ivan  staff   110272408 Jan 27  2022 chartevents_filtered_itemid.csv.gz"
- [4] "-rw-rw-r--@ 1 ivan  staff       55917 Mar 15  2021 d_items.csv.gz"                    
- [5] "-rw-rw-r--@ 1 ivan  staff    43296273 Mar 15  2021 datetimeevents.csv.gz"             
- [6] "-rw-rw-r--@ 1 ivan  staff     2848628 Mar 15  2021 icustays.csv.gz"                   
- [7] "-rw-rw-r--@ 1 ivan  staff        1103 Jan  4  2022 index.html"                        
- [8] "-rw-rw-r--@ 1 ivan  staff   352443512 Mar 15  2021 inputevents.csv.gz"                
- [9] "-rw-rw-r--@ 1 ivan  staff    37095672 Mar 15  2021 outputevents.csv.gz"               
-[10] "-rw-rw-r--@ 1 ivan  staff    20567368 Mar 15  2021 procedureevents.csv.gz"            </code></pre>
+ [1] "total 5698008"                                                                             
+ [2] "-rw-rw-r--@ 1 yufangong  staff  2350783547 Mar 15  2021 chartevents.csv.gz"                
+ [3] "-rw-rw-r--@ 1 yufangong  staff   110272408 Jan 27  2022 chartevents_filtered_itemid.csv.gz"
+ [4] "-rw-rw-r--@ 1 yufangong  staff       55917 Mar 15  2021 d_items.csv.gz"                    
+ [5] "-rw-rw-r--@ 1 yufangong  staff    43296273 Mar 15  2021 datetimeevents.csv.gz"             
+ [6] "-rw-rw-r--@ 1 yufangong  staff     2848628 Mar 15  2021 icustays.csv.gz"                   
+ [7] "-rw-rw-r--@ 1 yufangong  staff        1103 Jan  4  2022 index.html"                        
+ [8] "-rw-rw-r--@ 1 yufangong  staff   352443512 Mar 15  2021 inputevents.csv.gz"                
+ [9] "-rw-rw-r--@ 1 yufangong  staff    37095672 Mar 15  2021 outputevents.csv.gz"               
+[10] "-rw-rw-r--@ 1 yufangong  staff    20567368 Mar 15  2021 procedureevents.csv.gz"            </code></pre>
 </div>
 </div>
 <section id="q1.-read.csv-base-r-vs-read_csv-tidyverse-vs-fread-data.table" class="level2" data-number="1">
@@ -323,15 +323,15 @@ hospital_expire_flag "integer"   "integer"  </code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>$read.csv
    user  system elapsed 
- 10.537   0.248  10.947 
+  5.232   0.130   5.384 
 
 $read_csv
    user  system elapsed 
-  3.649   1.009   2.108 
+  1.661   1.698   1.077 
 
 $fread
    user  system elapsed 
-  0.998   0.446   1.716 </code></pre>
+  0.392   0.101   0.497 </code></pre>
 </div>
 </div>
 <p>It seems like <code>fread</code> is the fastest way to read a compressed csv file. The default data types are different between the three methods. In <code>read.csv</code> and <code>fread</code>, all numeric variables were classified as integer, while they remained numeric in <code>read_csv</code>. All date variables were classified as character in <code>read.csv</code>, while they remained as date format in <code>read_csv</code> and <code>fread</code>.</p>
