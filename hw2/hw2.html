@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Yufan Gong (UID: 305301666)">
-<meta name="dcterms.date" content="2023-02-10">
+<meta name="dcterms.date" content="2023-02-14">
 
 <title>Biostat 203B Homework 2</title>
 <style>
@@ -144,7 +144,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 10, 2023</p>
+      <p class="date">February 14, 2023</p>
     </div>
   </div>
   
@@ -160,7 +160,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.2.2 (2022-10-31)
 Platform: aarch64-apple-darwin20 (64-bit)
-Running under: macOS Ventura 13.2
+Running under: macOS Ventura 13.2.1
 
 Matrix products: default
 BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib
@@ -323,15 +323,15 @@ hospital_expire_flag "integer"   "integer"  </code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>$read.csv
    user  system elapsed 
-  5.232   0.130   5.384 
+  5.075   0.117   5.199 
 
 $read_csv
    user  system elapsed 
-  1.661   1.698   1.077 
+  1.648   1.684   0.749 
 
 $fread
    user  system elapsed 
-  0.392   0.101   0.497 </code></pre>
+  0.391   0.103   0.496 </code></pre>
 </div>
 </div>
 <p>It seems like <code>fread</code> is the fastest way to read a compressed csv file. The default data types are different between the three methods. In <code>read.csv</code> and <code>fread</code>, all numeric variables were classified as integer, while they remained numeric in <code>read_csv</code>. All date variables were classified as character in <code>read.csv</code>, while they remained as date format in <code>read_csv</code> and <code>fread</code>.</p>
@@ -1317,7 +1317,150 @@ $fread
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(anchor_age <span class="sc">&gt;</span> <span class="dv">18</span>) <span class="sc">%&gt;%</span> <span class="co">#limit to age &gt; 18</span></span>
 <span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">thirty_day_mort =</span> <span class="fu">if_else</span>(<span class="sc">!</span><span class="fu">is.na</span>(deathtime) <span class="sc">&amp;</span> lengthstay <span class="sc">&lt;=</span> <span class="dv">30</span>, <span class="st">"Died within 30 days"</span>, <span class="st">"Didn't die within 30 days"</span>)) <span class="sc">%&gt;%</span> <span class="co">#create indicator variable</span></span>
 <span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.character, str_to_title) <span class="sc">%&gt;%</span> <span class="co">#change all strings to title style</span></span>
-<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(thirty_day_mort), fct_rev) <span class="co">#revert factor level</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(thirty_day_mort), fct_rev) <span class="sc">%&gt;%</span> <span class="co">#revert factor level</span></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 53,055 × 41
+   subject_id  hadm_id  stay_id first_careunit                                  
+        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;                                           
+ 1   10000032 29079034 39553978 Medical Intensive Care Unit (Micu)              
+ 2   10000980 26913865 39765666 Medical Intensive Care Unit (Micu)              
+ 3   10001217 24597018 37067082 Surgical Intensive Care Unit (Sicu)             
+ 4   10001725 25563031 31205490 Medical/Surgical Intensive Care Unit (Micu/Sicu)
+ 5   10001884 26184834 37510196 Medical Intensive Care Unit (Micu)              
+ 6   10002013 23581541 39060235 Cardiac Vascular Intensive Care Unit (Cvicu)    
+ 7   10002155 23822395 33685454 Coronary Care Unit (Ccu)                        
+ 8   10002223 22494570 39638202 Trauma Sicu (Tsicu)                             
+ 9   10002348 22725460 32610785 Neuro Intermediate                              
+10   10002428 28662225 33987268 Medical Intensive Care Unit (Micu)              
+   last_careunit                                    intime             
+   &lt;chr&gt;                                            &lt;dttm&gt;             
+ 1 Medical Intensive Care Unit (Micu)               2180-07-23 14:00:00
+ 2 Medical Intensive Care Unit (Micu)               2189-06-27 08:42:00
+ 3 Surgical Intensive Care Unit (Sicu)              2157-11-20 19:18:02
+ 4 Medical/Surgical Intensive Care Unit (Micu/Sicu) 2110-04-11 15:52:22
+ 5 Medical Intensive Care Unit (Micu)               2131-01-11 04:20:05
+ 6 Cardiac Vascular Intensive Care Unit (Cvicu)     2160-05-18 10:00:53
+ 7 Coronary Care Unit (Ccu)                         2129-08-04 12:45:00
+ 8 Trauma Sicu (Tsicu)                              2158-01-15 08:01:49
+ 9 Neuro Intermediate                               2112-11-30 23:24:00
+10 Medical Intensive Care Unit (Micu)               2156-04-12 16:24:18
+   outtime               los admittime           dischtime          
+   &lt;dttm&gt;              &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;             
+ 1 2180-07-23 23:50:47 0.410 2180-07-23 12:35:00 2180-07-25 17:55:00
+ 2 2189-06-27 20:38:27 0.498 2189-06-27 07:38:00 2189-07-03 03:00:00
+ 3 2157-11-21 22:08:00 1.12  2157-11-18 22:56:00 2157-11-25 18:00:00
+ 4 2110-04-12 23:59:56 1.34  2110-04-11 15:08:00 2110-04-14 15:00:00
+ 5 2131-01-20 08:27:30 9.17  2131-01-07 20:39:00 2131-01-20 05:15:00
+ 6 2160-05-19 17:33:33 1.31  2160-05-18 07:45:00 2160-05-23 13:30:00
+ 7 2129-08-10 17:02:38 6.18  2129-08-04 12:44:00 2129-08-18 16:53:00
+ 8 2158-01-16 15:19:24 1.30  2158-01-15 08:00:00 2158-01-20 19:29:00
+ 9 2112-12-10 18:25:13 9.79  2112-11-30 22:22:00 2112-12-10 17:56:00
+10 2156-04-17 15:57:08 4.98  2156-04-12 14:16:00 2156-04-29 16:26:00
+   deathtime           admission_type              admission_location    
+   &lt;dttm&gt;              &lt;chr&gt;                       &lt;chr&gt;                 
+ 1 NA                  Ew Emer.                    Emergency Room        
+ 2 NA                  Ew Emer.                    Emergency Room        
+ 3 NA                  Ew Emer.                    Emergency Room        
+ 4 NA                  Ew Emer.                    Pacu                  
+ 5 2131-01-20 05:15:00 Observation Admit           Emergency Room        
+ 6 NA                  Surgical Same Day Admission Physician Referral    
+ 7 NA                  Ew Emer.                    Procedure Site        
+ 8 NA                  Ew Emer.                    Emergency Room        
+ 9 NA                  Observation Admit           Transfer From Hospital
+10 NA                  Ew Emer.                    Emergency Room        
+   discharge_location           insurance language marital_status
+   &lt;chr&gt;                        &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;         
+ 1 Home                         Medicaid  English  Widowed       
+ 2 Home Health Care             Medicare  English  Married       
+ 3 Home Health Care             Other     ?        Married       
+ 4 Home                         Other     English  Married       
+ 5 Died                         Medicare  English  Married       
+ 6 Home Health Care             Medicare  English  Single        
+ 7 Chronic/Long Term Acute Care Other     English  Married       
+ 8 Home                         Other     English  &lt;NA&gt;          
+ 9 Home Health Care             Medicare  English  Single        
+10 Skilled Nursing Facility     Medicare  English  Widowed       
+   ethnicity              edregtime           edouttime          
+   &lt;chr&gt;                  &lt;dttm&gt;              &lt;dttm&gt;             
+ 1 White                  2180-07-23 05:54:00 2180-07-23 14:00:00
+ 2 Black/African American 2189-06-27 06:25:00 2189-06-27 08:42:00
+ 3 White                  2157-11-18 17:38:00 2157-11-19 01:24:00
+ 4 White                  NA                  NA                 
+ 5 Black/African American 2131-01-07 13:36:00 2131-01-07 22:13:00
+ 6 Other                  NA                  NA                 
+ 7 White                  2129-08-04 11:00:00 2129-08-04 12:35:00
+ 8 Unable To Obtain       2158-01-15 06:49:00 2158-01-15 07:36:00
+ 9 White                  2112-11-30 15:08:00 2112-11-30 23:24:00
+10 White                  2156-04-12 09:56:00 2156-04-12 17:11:00
+   hospital_expire_flag lengthstay        gender anchor_age anchor_year
+                  &lt;dbl&gt; &lt;Duration&gt;        &lt;chr&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+ 1                    0 2.22222222222222s Female         52        2180
+ 2                    0 5.80694444444444s Female         73        2186
+ 3                    0 6.79444444444444s Female         55        2157
+ 4                    0 2.99444444444444s Female         46        2110
+ 5                    1 12.3583333333333s Female         68        2122
+ 6                    0 5.23958333333333s Female         53        2156
+ 7                    0 14.1729166666667s Female         80        2128
+ 8                    0 5.47847222222222s Male           21        2158
+ 9                    0 9.81527777777778s Female         77        2112
+10                    0 17.0902777777778s Female         80        2155
+   anchor_year_group dod        bicarbonate chloride creatinine glucose
+   &lt;chr&gt;             &lt;date&gt;           &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2014 - 2016       NA                  21      102        0.5     115
+ 2 2008 - 2010       NA                  NA       NA       NA        NA
+ 3 2011 - 2013       NA                  23      104        0.4     113
+ 4 2011 - 2013       NA                  24      106        0.8     146
+ 5 2008 - 2010       2131-01-20          33       96        1.1     148
+ 6 2008 - 2010       NA                  23      109        1.1      98
+ 7 2008 - 2010       2131-03-10          25      106        0.9      95
+ 8 2008 - 2010       NA                  26      102        0.8      88
+ 9 2017 - 2019       NA                  23      107        0.8     127
+10 2011 - 2013       NA                  20       98        0.8      99
+   potassium sodium hematocrit white_blood_cells heart_rate
+       &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;             &lt;dbl&gt;      &lt;dbl&gt;
+ 1       4.7    132       NA                NA           91
+ 2      NA       NA       NA                NA           77
+ 3       3.6    138       33.6              19           86
+ 4       3.9    140       39.1              17           55
+ 5       4      136       36                18.4         38
+ 6       4      140       28.6              18.2         80
+ 7       4.5    139       37.9               5.5         68
+ 8       3.9    138       32.5              10.1        100
+ 9       4.8    142       39.3               4.3         72
+10       3.9    129       28.7              22.4        124
+   non_invasive_blood_pressure_systolic non_invasive_blood_pressure_mean
+                                  &lt;dbl&gt;                            &lt;dbl&gt;
+ 1                                   84                               56
+ 2                                  150                               92
+ 3                                  151                              104
+ 4                                   73                               59
+ 5                                  180                               46
+ 6                                  104                               77
+ 7                                  126                               78
+ 8                                  123                               80
+ 9                                  129                               85
+10                                   87                               53
+   respiratory_rate temperature_fahrenheit thirty_day_mort          
+              &lt;dbl&gt;                  &lt;dbl&gt; &lt;fct&gt;                    
+ 1               24                   98.7 Didn't Die Within 30 Days
+ 2               23                   98   Didn't Die Within 30 Days
+ 3               18                   98.5 Didn't Die Within 30 Days
+ 4               19                   97.7 Didn't Die Within 30 Days
+ 5               10                   98.1 Died Within 30 Days      
+ 6               14                   97.2 Didn't Die Within 30 Days
+ 7               18                   95.9 Didn't Die Within 30 Days
+ 8               29                   98.6 Didn't Die Within 30 Days
+ 9               14                   97.9 Didn't Die Within 30 Days
+10               25                  103.  Didn't Die Within 30 Days
+# … with 53,045 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(mimic_icu_cohort<span class="sc">$</span>thirty_day_mort)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+      Died Within 30 Days Didn't Die Within 30 Days 
+                     5210                     47845 </code></pre>
+</div>
 </div>
 </section>
 <section id="q8.-exploratory-data-analysis-eda" class="level2" data-number="8">
@@ -1330,29 +1473,29 @@ $fread
 <li><p><code>thirty_day_mort</code> vs first ICU unit</p></li>
 </ul>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs demographic variables</span></span>
-<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="co"># iteration of ggplots (categorical variables)</span></span>
-<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(<span class="st">"ethnicity"</span>, <span class="st">"language"</span>, <span class="st">"insurance"</span>, </span>
-<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>     <span class="st">"marital_status"</span>, <span class="st">"gender"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
-<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
-<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
-<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> .data[[.x]], </span>
-<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> thirty_day_mort</span>
-<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
-<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span> </span>
-<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_fill_colorblind</span>() <span class="sc">+</span> </span>
-<span id="cb67-16"><a href="#cb67-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(</span>
-<span id="cb67-17"><a href="#cb67-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> .x,  </span>
-<span id="cb67-18"><a href="#cb67-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Number of subjects"</span>, </span>
-<span id="cb67-19"><a href="#cb67-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">fill =</span> <span class="st">"30 day mortality"</span></span>
-<span id="cb67-20"><a href="#cb67-20" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
-<span id="cb67-21"><a href="#cb67-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coord_flip</span>() <span class="sc">+</span> </span>
-<span id="cb67-22"><a href="#cb67-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_classic</span>()</span>
-<span id="cb67-23"><a href="#cb67-23" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs demographic variables</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="co"># iteration of ggplots (categorical variables)</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(<span class="st">"ethnicity"</span>, <span class="st">"language"</span>, <span class="st">"insurance"</span>, </span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>     <span class="st">"marital_status"</span>, <span class="st">"gender"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> .data[[.x]], </span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> thirty_day_mort</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span> </span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_fill_colorblind</span>() <span class="sc">+</span> </span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(</span>
+<span id="cb70-17"><a href="#cb70-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> .x,  </span>
+<span id="cb70-18"><a href="#cb70-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Number of subjects"</span>, </span>
+<span id="cb70-19"><a href="#cb70-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">fill =</span> <span class="st">"30 day mortality"</span></span>
+<span id="cb70-20"><a href="#cb70-20" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
+<span id="cb70-21"><a href="#cb70-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coord_flip</span>() <span class="sc">+</span> </span>
+<span id="cb70-22"><a href="#cb70-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_classic</span>()</span>
+<span id="cb70-23"><a href="#cb70-23" aria-hidden="true" tabindex="-1"></a>      )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]</code></pre>
 </div>
@@ -1407,22 +1550,22 @@ $fread
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot of numeric variable (age at admission)</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
-<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> thirty_day_mort, </span>
-<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> anchor_age, </span>
-<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> thirty_day_mort</span>
-<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
-<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
-<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span></span>
-<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"30 day mortality"</span>,</span>
-<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Age at admission"</span></span>
-<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ggplot of numeric variable (age at admission)</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> thirty_day_mort, </span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> anchor_age, </span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> thirty_day_mort</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span></span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"30 day mortality"</span>,</span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Age at admission"</span></span>
+<span id="cb76-15"><a href="#cb76-15" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb76-16"><a href="#cb76-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -1432,39 +1575,39 @@ $fread
 </div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first lab measurements</span></span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="co">#create a function to remove outliers</span></span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>dec_out_na <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">thres =</span> <span class="dv">3</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) {</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>  sd <span class="ot">&lt;-</span> <span class="fu">sd</span>(x, <span class="at">na.rm =</span> na.rm)</span>
-<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> na.rm)</span>
-<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>  id_out <span class="ot">=</span> x <span class="sc">&gt;</span> mean <span class="sc">+</span> thres <span class="sc">*</span> sd <span class="sc">|</span> x <span class="sc">&lt;</span> mean <span class="sc">-</span> thres <span class="sc">*</span> sd</span>
-<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>  x[id_out] <span class="ot">=</span> <span class="cn">NA</span></span>
-<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
-<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>dlabitems_tble <span class="sc">%&gt;%</span> </span>
-<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(label) <span class="sc">%&gt;%</span> </span>
-<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
-<span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate_if</span>(is.numeric, dec_out_na) <span class="sc">%&gt;%</span> </span>
-<span id="cb74-19"><a href="#cb74-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
-<span id="cb74-20"><a href="#cb74-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
-<span id="cb74-21"><a href="#cb74-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> thirty_day_mort, </span>
-<span id="cb74-22"><a href="#cb74-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .data[[.x]], </span>
-<span id="cb74-23"><a href="#cb74-23" aria-hidden="true" tabindex="-1"></a>          <span class="at">color =</span> thirty_day_mort</span>
-<span id="cb74-24"><a href="#cb74-24" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb74-25"><a href="#cb74-25" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
-<span id="cb74-26"><a href="#cb74-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
-<span id="cb74-27"><a href="#cb74-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span> </span>
-<span id="cb74-28"><a href="#cb74-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(</span>
-<span id="cb74-29"><a href="#cb74-29" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="st">"30 day mortality"</span>, </span>
-<span id="cb74-30"><a href="#cb74-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .x</span>
-<span id="cb74-31"><a href="#cb74-31" aria-hidden="true" tabindex="-1"></a>          ) <span class="sc">+</span> </span>
-<span id="cb74-32"><a href="#cb74-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme_classic</span>()</span>
-<span id="cb74-33"><a href="#cb74-33" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first lab measurements</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="co">#create a function to remove outliers</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>dec_out_na <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">thres =</span> <span class="dv">3</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  sd <span class="ot">&lt;-</span> <span class="fu">sd</span>(x, <span class="at">na.rm =</span> na.rm)</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> na.rm)</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>  id_out <span class="ot">=</span> x <span class="sc">&gt;</span> mean <span class="sc">+</span> thres <span class="sc">*</span> sd <span class="sc">|</span> x <span class="sc">&lt;</span> mean <span class="sc">-</span> thres <span class="sc">*</span> sd</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>  x[id_out] <span class="ot">=</span> <span class="cn">NA</span></span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(x)</span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>dlabitems_tble <span class="sc">%&gt;%</span> </span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(label) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate_if</span>(is.numeric, dec_out_na) <span class="sc">%&gt;%</span> </span>
+<span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
+<span id="cb77-20"><a href="#cb77-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
+<span id="cb77-21"><a href="#cb77-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> thirty_day_mort, </span>
+<span id="cb77-22"><a href="#cb77-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .data[[.x]], </span>
+<span id="cb77-23"><a href="#cb77-23" aria-hidden="true" tabindex="-1"></a>          <span class="at">color =</span> thirty_day_mort</span>
+<span id="cb77-24"><a href="#cb77-24" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb77-25"><a href="#cb77-25" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
+<span id="cb77-26"><a href="#cb77-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb77-27"><a href="#cb77-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span> </span>
+<span id="cb77-28"><a href="#cb77-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(</span>
+<span id="cb77-29"><a href="#cb77-29" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="st">"30 day mortality"</span>, </span>
+<span id="cb77-30"><a href="#cb77-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .x</span>
+<span id="cb77-31"><a href="#cb77-31" aria-hidden="true" tabindex="-1"></a>          ) <span class="sc">+</span> </span>
+<span id="cb77-32"><a href="#cb77-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme_classic</span>()</span>
+<span id="cb77-33"><a href="#cb77-33" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]</code></pre>
 </div>
@@ -1555,30 +1698,30 @@ $fread
 </div>
 <p>I created a function to remove all extreme values in lab measurements so that the boxplots were more readable.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first vital measurements</span></span>
-<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>dchartitems_tble <span class="sc">%&gt;%</span> </span>
-<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(label) <span class="sc">%&gt;%</span> </span>
-<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
-<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate_if</span>(is.numeric, dec_out_na) <span class="sc">%&gt;%</span> </span>
-<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(.data[[.x]] <span class="sc">&lt;</span> <span class="dv">300</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
-<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
-<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> thirty_day_mort, </span>
-<span id="cb83-13"><a href="#cb83-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .data[[.x]], </span>
-<span id="cb83-14"><a href="#cb83-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">color =</span> thirty_day_mort</span>
-<span id="cb83-15"><a href="#cb83-15" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb83-16"><a href="#cb83-16" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
-<span id="cb83-17"><a href="#cb83-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
-<span id="cb83-18"><a href="#cb83-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span> </span>
-<span id="cb83-19"><a href="#cb83-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(</span>
-<span id="cb83-20"><a href="#cb83-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"30 day mortality"</span>, </span>
-<span id="cb83-21"><a href="#cb83-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> .x</span>
-<span id="cb83-22"><a href="#cb83-22" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
-<span id="cb83-23"><a href="#cb83-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_classic</span>()</span>
-<span id="cb83-24"><a href="#cb83-24" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first vital measurements</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>dchartitems_tble <span class="sc">%&gt;%</span> </span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(label) <span class="sc">%&gt;%</span> </span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace_all</span>(<span class="st">" "</span>, <span class="st">"_"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(</span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate_if</span>(is.numeric, dec_out_na) <span class="sc">%&gt;%</span> </span>
+<span id="cb86-9"><a href="#cb86-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(.data[[.x]] <span class="sc">&lt;</span> <span class="dv">300</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb86-10"><a href="#cb86-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(</span>
+<span id="cb86-11"><a href="#cb86-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(</span>
+<span id="cb86-12"><a href="#cb86-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> thirty_day_mort, </span>
+<span id="cb86-13"><a href="#cb86-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">y =</span> .data[[.x]], </span>
+<span id="cb86-14"><a href="#cb86-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">color =</span> thirty_day_mort</span>
+<span id="cb86-15"><a href="#cb86-15" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb86-16"><a href="#cb86-16" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
+<span id="cb86-17"><a href="#cb86-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_boxplot</span>(<span class="at">na.rm =</span> T, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb86-18"><a href="#cb86-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span> </span>
+<span id="cb86-19"><a href="#cb86-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(</span>
+<span id="cb86-20"><a href="#cb86-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"30 day mortality"</span>, </span>
+<span id="cb86-21"><a href="#cb86-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> .x</span>
+<span id="cb86-22"><a href="#cb86-22" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span> </span>
+<span id="cb86-23"><a href="#cb86-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_classic</span>()</span>
+<span id="cb86-24"><a href="#cb86-24" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]</code></pre>
 </div>
@@ -1636,18 +1779,18 @@ $fread
 </div>
 <p>To visualize the vital measurements, I also applied the same function to remove outliers. However, some extreme data points were not removed since the maximum value of some variables are too large so that these values did not meet the criteria of “outliers” (i.e., within 3 standard deviations around the mean). Therefore, I further set an arbitrary cutoff (300) to keep values that make biological sense.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first ICU unit</span></span>
-<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> first_careunit, <span class="at">fill =</span> thirty_day_mort)) <span class="sc">+</span> </span>
-<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span> </span>
-<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_colorblind</span>() <span class="sc">+</span> </span>
-<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"First ICU unit"</span>, </span>
-<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of subjects"</span>, </span>
-<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"30 day mortality"</span></span>
-<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
-<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> </span>
-<span id="cb89-12"><a href="#cb89-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `thirty_day_mort` vs first ICU unit</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> first_careunit, <span class="at">fill =</span> thirty_day_mort)) <span class="sc">+</span> </span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span> </span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_colorblind</span>() <span class="sc">+</span> </span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"First ICU unit"</span>, </span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of subjects"</span>, </span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"30 day mortality"</span></span>
+<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
+<span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> </span>
+<span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
