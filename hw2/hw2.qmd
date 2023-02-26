@@ -564,7 +564,12 @@ mimic_icu_cohort <- list(icustays_tble, admissions_tble,
                          chartevents_tble) %>% 
   reduce(left_join, by = "subject_id") %>% #apply left_join multiple times to the given list
   filter(anchor_age > 18) %>% #limit to age > 18
-  mutate(thirty_day_mort = if_else(!is.na(deathtime) & lengthstay <= 30, "Died within 30 days", "Didn't die within 30 days")) %>% #create indicator variable
+  mutate(
+    thirty_day_mort = if_else(
+      !is.na(deathtime) & lengthstay <= 30, 
+      "Died within 30 days", "Didn't die within 30 days"
+      )
+    ) %>% #create indicator variable
   mutate_if(is.character, str_to_title) %>% #change all strings to title style
   mutate_at(vars(thirty_day_mort), fct_rev) %>% #revert factor level
   print(width = Inf)

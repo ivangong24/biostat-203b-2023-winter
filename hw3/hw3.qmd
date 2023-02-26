@@ -85,7 +85,7 @@ icustays_tble <- tbl(con, "icustays") %>%
 ```
 We only keep the first ICU stay. Following code is kind of a hack, using the `summarise_all(min)` function. It seems that `slice_min()`, `slice_head()`, `distinct(, .keep_all = TRUE)` don't work with `dbplyr`+`bigrquery` at the moment.
 ```{r}
-icustays_tble <- icustays_tble %>% 
+icustays_tble_new <- icustays_tble %>% 
   select(subject_id, intime) %>% 
   group_by(subject_id) %>% 
   summarise_all(min, na.rm = T) %>%
@@ -97,36 +97,121 @@ icustays_tble <- icustays_tble %>%
 
 4. Connect to the `admissions` table and only keep the patients who have a match in `icustays_tble` (according to `subject_id` and `hadm_id`).
 ```{r}
-# # TODO
-# admissions_tble <- 
+admissions_tble <- tbl(con, "admissions") %>%
+  show_query() %>%
+  semi_join(icustays_tble_new, by = c("subject_id", "hadm_id")) %>% 
+  select(-hadm_id) %>%
+  mutate(
+    lengthstay = DATETIME_DIFF(dischtime, admittime, DAY)
+    ) %>% # calculate the length of stay
+  print(width = Inf)
 ```
 
 5. Connect to the `patients` table and only keep the patients who have a match in `icustays_tble` (according to `subject_id`).
 ```{r}
-# # TODO
-# patients_tble <-
+patients_tble <- tbl(con, "patients") %>%
+  show_query() %>%
+  semi_join(icustays_tble_new, by = "subject_id") %>% 
+  print(width = Inf)
 ```
 
 6. Connect to the `labevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the lab items listed in HW2. 
 ```{r}
-# # TODO
-# labevents_tble <- 
+dlabitems_tble <- tbl(con, "d_labitems") %>%
+  show_query() %>%
+  filter(itemid %in% c(50912, 50971, 50983, 50902,
+                       50882, 51221, 51301, 50931)
+         ) %>%
+  print(width = Inf)
+
+
+labevents_tble <- tbl(con, "labevents") %>%
+  show_query() %>% 
+  filter(
+    itemid %in% c(50912, 50971, 50983, 50902, 
+                  50882, 51221, 51301, 50931)
+    ) %>% 
+  semi_join(
+    icustays_tble_new, 
+    by = "subject_id"
+    ) %>% 
+  print(width = Inf)
 ```
 Only keep the first lab measurements during ICU stay and pivot lab items to become variables/columns.
 ```{r}
 # # TODO
-# labevents_tble <- labevents_tble %>% ...
+labevents_tble_new <- labevents_tble %>% 
+  left_join(icustays_tble_new %>% 
+              select(subject_id, intime, outtime), 
+            by = "subject_id") %>% 
+  filter(charttime >= intime & charttime <= outtime) %>% 
+  group_by(subject_id, itemid) %>% 
+  slice_min(order_by = charttime) %>% 
+  select(-c(intime, outtime, charttime)) %>% 
+  ungroup() %>% 
+  pivot_wider(
+    id_cols = subject_id, 
+    names_from = itemid,
+    values_from = valuenum
+  ) %>% 
+  rename_at(
+    vars(dlabitems_tble %>% 
+           pull(itemid) %>% 
+           as.character()
+         ), 
+    ~dlabitems_tble %>% 
+      pull(label) %>% 
+      str_to_lower() %>% 
+      str_replace_all(" ","_")
+    ) %>% 
+  print(width = Inf)
 ```
 
 7. Connect to `chartevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the chart events listed in HW2.
 ```{r}
 # # TODO
-# chartevents_tble <- 
+dchartitems_tble <- tbl(con, "d_items") %>%
+  show_query() %>%
+  filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
+  print(width = Inf)
+
+chartevents_tble <- tbl(con, "chartevents") %>%
+  show_query() %>% 
+  filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>% 
+  semi_join(
+    icustays_tble_new, 
+    by = "subject_id"
+    ) %>% 
+  print(width = Inf)
 ```
 Only keep the first chart events during ICU stay and pivot chart events to become variables/columns.
 ```{r}
 # # TODO
-# chartevents_tble <- chartevents_tble %>% ...
+chartevents_tble_new <- chartevents_tble %>% 
+  left_join(icustays_tble_new %>% 
+              select(subject_id, intime, outtime), 
+            by = "subject_id") %>% 
+  filter(charttime >= intime & charttime <= outtime) %>% 
+  group_by(subject_id, itemid) %>% 
+  slice_min(order_by = charttime) %>% 
+  select(-c(intime, outtime, charttime)) %>% 
+  ungroup() %>% 
+  pivot_wider(
+    id_cols = subject_id, 
+    names_from = itemid,
+    values_from = valuenum
+  ) %>% 
+  rename_at(
+    vars(dchartitems_tble %>% 
+           pull(itemid) %>% 
+           as.character()
+         ), 
+    ~dchartitems_tble %>% 
+      pull(label) %>% 
+      str_to_lower() %>% 
+      str_replace_all(" ","_")
+    ) %>% 
+  print(width = Inf)
 ```
 
 8. Put things together. This step is similar to Q7 of HW2. Using one chain of pipes `%>%` to perform following data wrangling steps: (i) start with the `icustays_tble` for the first ICU stay of each unique patient, (ii) merge in admissions and patients tables, (iii) keep adults only (age at admission >= 18), (iv) merge in the labevents and chartevents tables, (v) create an indicator for 30-day mortality, (vi) save the final tibble to an `icu_cohort.rds` R data file in the `mimiciv_shiny` folder.
@@ -140,7 +225,23 @@ if (!dir.exists("mimiciv_shiny")) {
 
 ```{r}
 # # TODO
-# icu_cohort <- icustays_tble %>% ...
+icu_cohort <- list(icustays_tble_new, admissions_tble, patients_tble) %>% 
+  reduce(left_join, by = "subject_id") %>% #apply left_join multiple times
+  filter(anchor_age >= 18) %>% #limit to age > 18
+  left_join(labevents_tble_new, by = "subject_id") %>% 
+  left_join(chartevents_tble_new, by = "subject_id") %>% 
+  mutate(
+    thirty_day_mort = if_else(
+      !is.na(deathtime) & lengthstay <= 30,
+      "Died within 30 days", "Didn't die within 30 days"
+      )
+    ) %>% #create indicator variable
+  mutate_if(is.character, str_to_title) %>% #change all strings to title style
+  print(width = Inf)
+
+table(icu_cohort %>% pull(thirty_day_mort))
+
+write_rds(icu_cohort, "mimiciv_shiny/icu_cohort.rds")
 ```
 
 Close database connection and clear workspace.
@@ -153,3 +254,4 @@ rm(list = ls())
 
 Develop a Shiny app for exploring the ICU cohort data created in Q1. The app should reside in the `mimiciv_shiny` folder. The app should provide easy access to the graphical and numerical summaries of variables (demographics, lab measurements, vitals) in the ICU cohort.
 
+  - See `app.R` in the `mimiciv_shiny` folder
