@@ -27,7 +27,6 @@ library(gt)
 library(rlang)
 library(gtsummary)
 library(tidyverse)
-shinyOptions(cache = cachem::cache_disk("./app_cache/cache/"))
 
 
 # Create functions --------------------------------------------------------
