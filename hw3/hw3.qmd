@@ -162,7 +162,7 @@ labevents_tble_new <- labevents_tble %>%
     ~dlabitems_tble %>% 
       pull(label) %>% 
       str_to_lower() %>% 
-      str_replace_all(" ","_")
+      str_replace_all(" ", "_")
     ) %>% 
   print(width = Inf)
 ```
@@ -209,7 +209,7 @@ chartevents_tble_new <- chartevents_tble %>%
     ~dchartitems_tble %>% 
       pull(label) %>% 
       str_to_lower() %>% 
-      str_replace_all(" ","_")
+      str_replace_all(" ", "_")
     ) %>% 
   print(width = Inf)
 ```
@@ -227,7 +227,13 @@ if (!dir.exists("mimiciv_shiny")) {
 # # TODO
 icu_cohort <- list(icustays_tble_new, admissions_tble, patients_tble) %>% 
   reduce(left_join, by = "subject_id") %>% #apply left_join multiple times
-  filter(anchor_age >= 18) %>% #limit to age > 18
+  mutate(age_at_admission = 
+           DATETIME_DIFF(
+             admittime, 
+             DATETIME(anchor_year, as.integer(1), as.integer(1), 
+                      as.integer(0), as.integer(0), as.integer(0)), 
+             YEAR) + anchor_age) %>% #define age at admission
+  filter(age_at_admission >= 18) %>% #limit to age > 18
   left_join(labevents_tble_new, by = "subject_id") %>% 
   left_join(chartevents_tble_new, by = "subject_id") %>% 
   mutate(

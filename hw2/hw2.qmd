@@ -219,7 +219,7 @@ admissions_tble <- admissions_tble %>%
       ymd_hms(admittime), 
       ymd_hms(dischtime)
       ) %>% 
-      as.duration()/3600/24
+      as.duration() / 3600 / 24
     ) 
 
 admissions_tble %>% 
@@ -391,7 +391,7 @@ labevents_tble <- labevents_tble %>%
     ~dlabitems_tble %>% 
       pull(label) %>% 
       str_to_lower() %>% 
-      str_replace_all(" ","_")
+      str_replace_all(" ", "_")
     ) %>% 
   print(width = Inf)
 ```
@@ -509,7 +509,7 @@ chartevents_tble <- chartevents_tble %>%
     ~dchartitems_tble %>% 
       pull(label) %>% 
       str_to_lower() %>% 
-      str_replace_all(" ","_")
+      str_replace_all(" ", "_")
     ) %>% 
   print(width = Inf)
 

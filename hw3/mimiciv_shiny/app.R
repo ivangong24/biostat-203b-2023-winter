@@ -50,7 +50,7 @@ icu_cohort <- read_rds("icu_cohort.rds") %>%
   mutate_at(vars(thirty_day_mort), fct_rev)
 
 demo_vars <- quote_all(ethnicity, language, insurance, marital_status, 
-                       gender, anchor_age)
+                       gender, age_at_admission)
 
 lab_vars <- quote_all(creatinine, potassium, sodium, chloride, 
                       bicarbonate, hematocrit, white_blood_cells, glucose)
@@ -71,8 +71,9 @@ list(
         all_of(key_vars), thirty_day_mort
       ) %>% 
       tbl_summary(
-        by = thirty_day_mort
+        by = thirty_day_mort, missing = "no"
       ) %>% 
+      add_n() %>% 
       add_overall() %>% 
       modify_header(label = "**Characteristics**") %>%
       modify_spanning_header(
@@ -114,7 +115,7 @@ demo_plots_2 <- icu_cohort %>%
   ggplot(
     aes(
       x = thirty_day_mort, 
-      y = anchor_age, 
+      y = age_at_admission, 
       color = thirty_day_mort
       )
     ) + 
