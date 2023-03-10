@@ -69,7 +69,24 @@ dim(icu_cohort_testing)
 2. Train and tune the models using the training set.
 
 ```{r}
-
+rf_recipe <- 
+  recipe(
+    thirty_day_mort ~ ., 
+    data = icu_cohort_training
+  ) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  # step_dummy(all_nominal()) %>%
+  # mean imputation for numeric_var
+  step_impute_mean(numeric_var) %>%
+  # mode imputation for categorical_var
+  step_impute_mode(categorical_var) %>%
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) %>% 
+  # # center and scale numeric data (not necessary for random forest)
+  # step_normalize(all_numeric_predictors()) %>%
+  # estimate the means and standard deviations
+  prep(training = icu_cohort_training, retain = TRUE)
+rf_recipe
 ```
 
 
