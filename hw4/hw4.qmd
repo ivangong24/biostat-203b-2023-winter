@@ -1,0 +1,77 @@
+---
+title: "Biostat 203B Homework 4"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: "Yufan Gong (UID: 305301666)"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+knitr:
+  opts_chunk: 
+    cache: false    
+    echo: true
+    fig.align: 'center'
+    fig.width: 6
+    fig.height: 4
+    message: FALSE
+---
+
+Display machine information:
+```{r}
+#| eval: false
+sessionInfo()
+```
+
+Load database libraries and the tidyverse frontend:
+```{r}
+#| eval: false
+
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(tidymodels))
+suppressPackageStartupMessages(library(lubridate))
+```
+
+## Predicting 30-day mortality
+
+Using the ICU cohort `icu_cohort.rds` you built in Homework 3, develop at least three analytic approaches for predicting the 30-day mortality of patients admitted to ICU using demographic information (gender, age, marital status, ethnicity), first lab measurements during ICU stay, and first vital measurements during ICU stay. For example, you can use (1) logistic regression with elastic net (lasso + ridge) penalty (e.g., glmnet or keras package), (2) random forest, (3) boosting, and (4) support vector machines, or (5) MLP neural network (keras package)
+
+1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.
+
+```{r}
+#Load data
+icu_cohort <- read_rds("icu_cohort.rds") %>% 
+  as_tibble() %>% 
+  mutate_at(vars(thirty_day_mort), fct_rev)
+
+#Split data into test and training set
+data_split <- initial_split(
+  icu_cohort, 
+  # stratify by 30-day mortality status
+  strata = "thirty_day_mort", 
+  prop = 0.5
+  )
+data_split
+
+
+icu_cohort_training <- training(data_split)
+dim(icu_cohort_training)
+
+icu_cohort_testing <- testing(data_split)
+dim(icu_cohort_testing)
+```
+
+
+2. Train and tune the models using the training set.
+
+```{r}
+
+```
+
+
+
+3. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.
