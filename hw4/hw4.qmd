@@ -30,10 +30,15 @@ sessionInfo()
 Load database libraries and the tidyverse frontend:
 ```{r}
 #| eval: false
-
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(tidymodels))
 suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(rlang))
+suppressPackageStartupMessages(library(ranger))
+suppressPackageStartupMessages(library(xgboost))
+suppressPackageStartupMessages(library(keras))
+suppressPackageStartupMessages(library(gtsummary))
+suppressPackageStartupMessages(library(tidyverse))
+
 ```
 
 ## Predicting 30-day mortality
@@ -43,25 +48,53 @@ Using the ICU cohort `icu_cohort.rds` you built in Homework 3, develop at least 
 1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.
 
 ```{r}
+#create functions
+quote_all <- function(...){
+  args <- ensyms(...)
+  paste(map(args, as_string), sep = "")
+}
+
 #Load data
-icu_cohort <- read_rds("icu_cohort.rds") %>% 
-  as_tibble() %>% 
-  mutate_at(vars(thirty_day_mort), fct_rev)
+icu_cohort <- read_rds("icu_cohort.rds")
+
+#only keep variables that could contribute to thirty day mortality
+vars_to_drop <- quote_all(time, `_id`, dod, los, location, flag, year, 
+                          unit, language, anchor, length, type, insurance)
+
+covars <- names(icu_cohort) %>% 
+  discard(
+         str_detect(
+           ., 
+           str_c(vars_to_drop, collapse = "|")
+           )
+       ) 
+
+#get the subset which only contains variables of interest
+icu_cohort_new <- icu_cohort %>% 
+  select(all_of(covars))
+
+icu_cohort_new %>% 
+  tbl_summary(by = thirty_day_mort) %>% 
+  as_flex_table()
+
 
 #Split data into test and training set
 data_split <- initial_split(
-  icu_cohort, 
+  icu_cohort_new, 
   # stratify by 30-day mortality status
   strata = "thirty_day_mort", 
   prop = 0.5
   )
+
 data_split
 
+list(training, testing) %>% 
+  map(~ data_split %>% 
+        .x) %>% 
+  set_names("icu_cohort_training", "icu_cohort_testing") %>% 
+  list2env(.GlobalEnv)
 
-icu_cohort_training <- training(data_split)
 dim(icu_cohort_training)
-
-icu_cohort_testing <- testing(data_split)
 dim(icu_cohort_testing)
 ```
 
@@ -74,21 +107,195 @@ rf_recipe <-
     thirty_day_mort ~ ., 
     data = icu_cohort_training
   ) %>%
-  # # create traditional dummy variables (not necessary for random forest in R)
-  # step_dummy(all_nominal()) %>%
   # mean imputation for numeric_var
-  step_impute_mean(numeric_var) %>%
+  step_impute_mean(all_numeric_predictors()) %>%
   # mode imputation for categorical_var
-  step_impute_mode(categorical_var) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  # # create traditional dummy variables (not necessary for random forest in R)
+  # step_dummy(all_nominal_predictors()) %>%
   # zero-variance filter
-  step_zv(all_numeric_predictors()) %>% 
+  step_zv(all_numeric_predictors()) 
   # # center and scale numeric data (not necessary for random forest)
   # step_normalize(all_numeric_predictors()) %>%
-  # estimate the means and standard deviations
-  prep(training = icu_cohort_training, retain = TRUE)
 rf_recipe
+
+logit_recipe <- 
+  rf_recipe %>% 
+  step_dummy(all_nominal_predictors()) %>%
+  # # center and scale numeric data (not necessary for random forest)
+  step_normalize(all_numeric_predictors()) 
+logit_recipe
+
+gb_recipe <- 
+  rf_recipe %>%
+  # create traditional dummy variables (necessary for xgboost)
+  step_dummy(all_nominal_predictors()) 
+gb_recipe
+```
+
+```{r}
+# Model
+logit_mod <- 
+  logistic_reg(
+    penalty = tune(), 
+    mixture = tune()
+  ) %>% 
+  set_engine("glmnet", standardize = FALSE)
+logit_mod
+
+rf_mod <- 
+  rand_forest(
+    mode = "classification",
+    # Number of predictors randomly sampled in each split
+    mtry = tune(),
+    # Number of trees in ensemble
+    trees = tune()
+  ) %>% 
+  set_engine("ranger")
+rf_mod
+
+gb_mod <- 
+  boost_tree(
+    mode = "classification",
+    trees = 1000, 
+    tree_depth = tune(),
+    learn_rate = tune()
+  ) %>% 
+  set_engine("xgboost")
+gb_mod
 ```
 
 
+```{r}
+# Workflow
+logit_wf <- workflow() %>%
+  add_recipe(logit_recipe) %>%
+  add_model(logit_mod)
+logit_wf
+
+rf_wf <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_mod)
+rf_wf
+
+gb_wf <- workflow() %>%
+  add_recipe(gb_recipe) %>%
+  add_model(gb_mod)
+gb_wf
+```
+
+
+```{r}
+# Tuning grid
+param_grid_logit <- grid_regular(
+  penalty(range = c(-6, 3)), 
+  mixture(),
+  levels = c(100, 5)
+  )
+param_grid_logit
+
+param_grid_rf <- grid_regular(
+  trees(range = c(100L, 300L)), 
+  mtry(range = c(1L, 5L)),
+  levels = c(3, 5)
+  )
+param_grid_rf
+
+param_grid_boost <- grid_regular(
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 10)
+  )
+param_grid_boost
+```
+
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(icu_cohort_training, v = 5)
+folds
+```
+
+```{r}
+logit_fit <- logit_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid_logit,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+logit_fit
+
+rf_fit <- rf_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid_rf,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+rf_fit
+
+gb_fit <- gb_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid = param_grid_boost,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+gb_fit
+```
+
+```{r}
+logit_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  ggplot(mapping = aes(x = penalty, y = mean, color = mixture)) +
+  geom_point() +
+  labs(x = "Penalty", y = "CV AUC") +
+  scale_x_log10()
+
+rf_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  ggplot(mapping = aes(x = trees, y = mean, color = mtry)) +
+  geom_point() + 
+  # geom_line() + 
+  labs(x = "Num. of Trees", y = "CV AUC")
+
+gb_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = tree_depth)) +
+  geom_point() +
+  labs(x = "Learning Rate", y = "CV AUC") +
+  scale_x_log10()
+```
+
+```{r}
+logit_fit %>%
+  show_best("roc_auc")
+
+rf_fit %>%
+  show_best("roc_auc")
+
+gb_fit %>%
+  show_best("roc_auc")
+```
+
+```{r}
+best_logit <- logit_fit %>%
+  select_best("roc_auc")
+best_logit
+
+best_rf <- rf_fit %>%
+  select_best("roc_auc")
+best_rf
+
+best_gb <- gb_fit %>%
+  select_best("roc_auc")
+best_gb
+```
+
 
 3. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.
+

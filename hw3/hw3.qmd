@@ -243,6 +243,7 @@ icu_cohort <- list(icustays_tble_new, admissions_tble, patients_tble) %>%
       )
     ) %>% #create indicator variable
   mutate_if(is.character, str_to_title) %>% #change all strings to title style
+  collect() %>% 
   print(width = Inf)
 
 table(icu_cohort %>% pull(thirty_day_mort))
