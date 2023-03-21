@@ -33,7 +33,6 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(rlang))
 suppressPackageStartupMessages(library(ranger))
 suppressPackageStartupMessages(library(xgboost))
-suppressPackageStartupMessages(library(keras))
 suppressPackageStartupMessages(library(gtsummary))
 suppressPackageStartupMessages(library(tidyverse))
 
@@ -90,7 +89,8 @@ list(training, testing) %>%
   map(~ data_split %>% 
         .x) %>% 
   set_names("icu_cohort_training", "icu_cohort_testing") %>% 
-  list2env(.GlobalEnv)
+  list2env(.GlobalEnv) %>% 
+  invisible()
 
 dim(icu_cohort_training)
 dim(icu_cohort_testing)
@@ -98,6 +98,8 @@ dim(icu_cohort_testing)
 
 
 2. Train and tune the models using the training set.
+
+I used logistic regression, random forest, and boosting to train the models. 
 
 ```{r}
 rf_recipe <- 
@@ -132,7 +134,7 @@ gb_recipe
 ```
 
 ```{r}
-# Model
+# Models
 logit_mod <- 
   logistic_reg(
     penalty = tune(), 
@@ -165,21 +167,24 @@ gb_mod
 
 
 ```{r}
-# Workflow
-logit_wf <- workflow() %>%
-  add_recipe(logit_recipe) %>%
-  add_model(logit_mod)
+# Workflows
+list(
+  list(logit_recipe, rf_recipe, gb_recipe), 
+  list(logit_mod, rf_mod, gb_mod)
+  ) %>% 
+  pmap(
+    ~ workflow() %>% 
+      add_recipe(.x) %>% 
+      add_model(.y)
+  ) %>% 
+  set_names("logit_wf", "rf_wf", "gb_wf") %>% 
+  list2env(.GlobalEnv) %>% 
+  invisible()
+
 logit_wf
-
-rf_wf <- workflow() %>%
-  add_recipe(rf_recipe) %>%
-  add_model(rf_mod)
 rf_wf
-
-gb_wf <- workflow() %>%
-  add_recipe(gb_recipe) %>%
-  add_model(gb_mod)
 gb_wf
+
 ```
 
 
@@ -215,32 +220,30 @@ folds
 ```
 
 ```{r}
-logit_fit <- logit_wf %>%
-  tune_grid(
-    resamples = folds,
-    grid = param_grid_logit,
-    metrics = metric_set(roc_auc, accuracy)
-    )
+list(
+  list(logit_wf, rf_wf, gb_wf), 
+  list(param_grid_logit, param_grid_rf, param_grid_boost)
+  ) %>% 
+  pmap(
+    ~ .x %>% 
+      tune_grid(
+        resamples = folds, 
+        grid = .y, 
+        metrics = metric_set(roc_auc, accuracy)
+        )
+    ) %>% 
+  set_names("logit_fit", "rf_fit", "gb_fit") %>% 
+  list2env(.GlobalEnv) %>% 
+  invisible()
+
 logit_fit
-
-rf_fit <- rf_wf %>%
-  tune_grid(
-    resamples = folds,
-    grid = param_grid_rf,
-    metrics = metric_set(roc_auc, accuracy)
-    )
 rf_fit
-
-gb_fit <- gb_wf %>%
-  tune_grid(
-    resamples = folds,
-    grid = param_grid_boost,
-    metrics = metric_set(roc_auc, accuracy)
-    )
 gb_fit
+
 ```
 
 ```{r}
+
 logit_fit %>%
   collect_metrics() %>%
   print(width = Inf) %>%
@@ -270,73 +273,73 @@ gb_fit %>%
 ```
 
 ```{r}
-logit_fit %>%
-  show_best("roc_auc")
 
-rf_fit %>%
-  show_best("roc_auc")
+list(logit_fit, rf_fit, gb_fit) %>% 
+  map(
+    ~ .x %>% 
+      show_best("roc_auc")
+    )
 
-gb_fit %>%
-  show_best("roc_auc")
 ```
 
 ```{r}
-best_logit <- logit_fit %>%
-  select_best("roc_auc")
+
+list(logit_fit, rf_fit, gb_fit) %>% 
+  map(
+    ~ .x %>% 
+      select_best("roc_auc")
+    ) %>% 
+  set_names("best_logit", "best_rf", "best_gb") %>% 
+  list2env(.GlobalEnv) %>% 
+  invisible()
+
 best_logit
-
-best_rf <- rf_fit %>%
-  select_best("roc_auc")
 best_rf
-
-best_gb <- gb_fit %>%
-  select_best("roc_auc")
 best_gb
+
 ```
 
 
 3. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.
 
 ```{r}
-# Final workflow
-final_wf_logit <- logit_wf %>%
-  finalize_workflow(best_logit)
+# Final workflows
+list(
+  list(logit_wf, rf_wf, gb_wf), 
+  list(best_logit, best_rf, best_gb)
+  ) %>% 
+  pmap(
+    ~ .x %>% 
+      finalize_workflow(.y)
+  ) %>% 
+  set_names("final_wf_logit", "final_wf_rf", "final_wf_gb") %>% 
+  list2env(.GlobalEnv) %>% 
+  invisible()
+
 final_wf_logit
-
-final_wf_rf <- rf_wf %>%
-  finalize_workflow(best_rf)
 final_wf_rf
-
-final_wf_gb <- gb_wf %>%
-  finalize_workflow(best_gb)
 final_wf_gb
 ```
 
 ```{r}
-final_fit_logit <- 
-  final_wf_logit %>%
-  last_fit(data_split)
+#Fit the whole training set, then predict the test cases
+list(final_wf_logit, final_wf_rf, final_wf_gb) %>% 
+  map(
+    ~ .x %>% 
+      last_fit(data_split)
+    ) %>% 
+  set_names("final_fit_logit", "final_fit_rf", "final_fit_gb") %>% 
+  list2env(.GlobalEnv) %>% 
+  invisible()
+
 final_fit_logit
-
-final_fit_rf <- 
-  final_wf_rf %>%
-  last_fit(data_split)
 final_fit_rf
-
-final_fit_gb <- 
-  final_wf_gb %>%
-  last_fit(data_split)
 final_fit_gb
 ```
 
 ```{r}
-final_fit_logit %>% 
-  collect_metrics()
+# Test metrics
+list(final_fit_logit, final_fit_rf, final_fit_gb) %>% 
+  map(collect_metrics)
 
-final_fit_rf %>% 
-  collect_metrics()
-
-final_fit_gb %>% 
-  collect_metrics()
 ```
-
