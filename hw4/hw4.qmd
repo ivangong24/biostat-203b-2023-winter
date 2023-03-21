@@ -23,13 +23,11 @@ knitr:
 
 Display machine information:
 ```{r}
-#| eval: false
 sessionInfo()
 ```
 
 Load database libraries and the tidyverse frontend:
 ```{r}
-#| eval: false
 suppressPackageStartupMessages(library(tidymodels))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(rlang))
@@ -298,4 +296,47 @@ best_gb
 
 
 3. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each model.
+
+```{r}
+# Final workflow
+final_wf_logit <- logit_wf %>%
+  finalize_workflow(best_logit)
+final_wf_logit
+
+final_wf_rf <- rf_wf %>%
+  finalize_workflow(best_rf)
+final_wf_rf
+
+final_wf_gb <- gb_wf %>%
+  finalize_workflow(best_gb)
+final_wf_gb
+```
+
+```{r}
+final_fit_logit <- 
+  final_wf_logit %>%
+  last_fit(data_split)
+final_fit_logit
+
+final_fit_rf <- 
+  final_wf_rf %>%
+  last_fit(data_split)
+final_fit_rf
+
+final_fit_gb <- 
+  final_wf_gb %>%
+  last_fit(data_split)
+final_fit_gb
+```
+
+```{r}
+final_fit_logit %>% 
+  collect_metrics()
+
+final_fit_rf %>% 
+  collect_metrics()
+
+final_fit_gb %>% 
+  collect_metrics()
+```
 
