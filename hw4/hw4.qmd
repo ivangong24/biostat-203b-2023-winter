@@ -29,7 +29,7 @@ sessionInfo()
 Load database libraries and the tidyverse frontend:
 ```{r}
 suppressPackageStartupMessages(library(tidymodels))
-suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(rlang))
 suppressPackageStartupMessages(library(ranger))
 suppressPackageStartupMessages(library(xgboost))
@@ -44,12 +44,49 @@ Using the ICU cohort `icu_cohort.rds` you built in Homework 3, develop at least 
 
 1. Partition data into 50% training set and 50% test set. Stratify partitioning according the 30-day mortality status.
 
+
+First, we need to copy `icu_cohort.rds` from `hw3` to `hw4`.
 ```{r}
+# Copy icu_cohort.rds from hw3 to hw4
+
+# Set the source and destination directories
+hw3_path <- here("hw3", "mimiciv_shiny")
+hw4_path <- here("hw4")
+
+# Set the file name and path
+file_name <- "icu_cohort.rds"
+file_path <- file.path(hw3_path, file_name)
+
+# check if the file already exists in the destination directory
+if (!file.exists(str_c(hw4_path, "/", file_name))) {
+  # copy the file to the destination directory
+  file.copy(from = file_path, 
+            to = hw4_path)
+  print("File copied successfully!")
+} else {
+  print("File already exists in the destination directory.")
+}
+```
+
+
+Then, we need to make a subset of the original dataset with variables of interest and remove the outliers.
+```{r}
+
 #create functions
+
+## quote all elements in a list
 quote_all <- function(...){
   args <- ensyms(...)
   paste(map(args, as_string), sep = "")
 }
+
+## remove extreme values based on their iqrs
+extreme_remove_iqr <- function(x) {
+  Q = quantile(x, c(0.25, 0.75), na.rm = TRUE)
+  iqr = IQR(x, na.rm = TRUE)
+  x = if_else(x < Q[1] - 1.5 * iqr | x > Q[2] + 1.5 * iqr, NA, x)
+}
+
 
 #Load data
 icu_cohort <- read_rds("icu_cohort.rds")
@@ -68,13 +105,26 @@ covars <- names(icu_cohort) %>%
 
 #get the subset which only contains variables of interest
 icu_cohort_new <- icu_cohort %>% 
-  select(all_of(covars))
+  select(all_of(covars)) %>% 
+  mutate_if(is.numeric, extreme_remove_iqr) # remove outliers
 
 icu_cohort_new %>% 
-  tbl_summary(by = thirty_day_mort) %>% 
+  tbl_summary(by = thirty_day_mort, missing = "no") %>% 
+  add_n() %>% 
+      add_overall() %>% 
+      modify_header(label = "**Characteristics**") %>%
+      modify_spanning_header(
+        starts_with("stat_") ~ "**Thirty day mortality**"
+      ) %>%
+  modify_caption("Table 1. Characteristics of MIMIC IV") %>% 
+  bold_labels() %>% 
   as_flex_table()
 
+```
 
+
+After data cleaning, we can split the data into `training` set and `testing` set for analysis.
+```{r}
 #Split data into test and training set
 data_split <- initial_split(
   icu_cohort_new, 
@@ -99,8 +149,7 @@ dim(icu_cohort_testing)
 
 2. Train and tune the models using the training set.
 
-I used logistic regression, random forest, and boosting to train the models. 
-
+I used logistic regression, random forest, and boosting to train the models. I intended to impute the predictors since I removed some outliers. The existence of extreme values could just be due to entry error which is common in such a big database. 
 ```{r}
 rf_recipe <- 
   recipe(
@@ -132,6 +181,7 @@ gb_recipe <-
   step_dummy(all_nominal_predictors()) 
 gb_recipe
 ```
+
 
 ```{r}
 # Models

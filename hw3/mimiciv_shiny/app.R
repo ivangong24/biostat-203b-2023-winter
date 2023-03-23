@@ -34,7 +34,7 @@ library(tidyverse)
 extreme_remove_iqr <- function(x) {
   Q = quantile(x, c(0.25, 0.75), na.rm = TRUE)
   iqr = IQR(x, na.rm = TRUE)
-  x = if_else(x < Q[1]-1.5*iqr | x > Q[2]+1.5*iqr, NA, x)
+  x = if_else(x < Q[1] - 1.5 * iqr | x > Q[2] + 1.5 * iqr, NA, x)
 }
 
 quote_all <- function(...){
